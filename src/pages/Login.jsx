@@ -1,5 +1,5 @@
 import { loginUser } from "../Services/authServices";
-import { setUser } from "../redux/authSlice";
+import { setUser,setIsSeller,setSwitcher } from "../redux/authSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router";
@@ -21,18 +21,20 @@ const Login = () => {
     try {
       const response = await loginUser(formData);
       dispatch(setUser(response.user));
+      if(response.user.role === "seller"){
+        dispatch(setIsSeller(true));
+      }
       toast.success(response.message);
 
       // ✅ Navigate by role
-    //   if (response.user.role === "admin") {
-    //     navigate("/admin/dashboard");
-    //   } else if (response.user.role === "recruiter") {
-    //     navigate("/recruiter/dashboard");
-    //   } else if (response.user.role === "seller") {
-    //     navigate("/seller/dashboard");
-    //   } else {
+      if (response.user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (response.user.role === "seller") {
+        dispatch(setSwitcher(true));
+        navigate("/seller/dashboard");
+      } else {
         navigate("/dashboard");
-     // }
+     }
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || error.message || "Login failed";

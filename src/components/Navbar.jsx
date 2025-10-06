@@ -1,17 +1,33 @@
-
 import { Link, useNavigate } from "react-router";
-import { clearUser } from "../redux/authSlice";
+import { clearUser, setIsSeller, setSwitcher } from "../redux/authSlice";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
+import { useState, useEffect, useRef } from "react";
 
 const Navbar = () => {
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const profileRef = useRef();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isSeller = useSelector((state) => state.auth.isSeller);
+  const isSwitched = useSelector((state) => state.auth.isSellerSwitched);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
     try {
       dispatch(clearUser());
+      dispatch(setIsSeller(false));
       toast.success("Logged out successfully");
       navigate("/login", { replace: true });
     } catch (error) {
@@ -20,104 +36,207 @@ const Navbar = () => {
       navigate("/login", { replace: true });
     }
   };
-  
+
   const handleSwitchToBuyer = () => {
-    // Optional: you could also call an API here if you maintain roles on backend
-    toast.info("Switched to Buyer Dashboard");
-    navigate("/dashboard"); // buyer dashboard
+    if (!isSwitched) {
+      dispatch(setSwitcher(true));
+      toast.info("Switched to Buyer Dashboard");
+      navigate("/dashboard");
+    } else {
+      dispatch(setSwitcher(false));
+      toast.info("Switched to Seller Dashboard");
+      navigate("/seller/dashboard");
+    }
   };
 
-  return (
-    <nav className="bg-white shadow-md">
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex justify-between items-center h-6">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">JP</span>
-            </div>
-          </Link>
+  // ...existing code...
+return (
+  <nav className="bg-gradient-to-tr from-indigo-700 via-fuchsia-600 to-orange-400 shadow-xl">
+    <div className="max-w-7xl mx-auto px-4 py-3">
+      <div className="flex justify-between items-center">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-white/30 backdrop-blur-lg rounded-full flex items-center justify-center shadow-lg border-2 border-white/60">
+            <span className="text-3xl font-extrabold text-white drop-shadow-lg tracking-widest">X</span>
+          </div>
+          <span className="text-2xl font-black text-white tracking-wider drop-shadow-lg hidden sm:inline">Cart</span>
+        </Link>
 
-          <div>
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center gap-8">
+         
+          {isAuthenticated && isSeller && isSwitched && (user?.role !== "buyer") && (
             <Link
-              to="/"
-              className="text-gray-600 hover:text-blue-600 font-medium"
+              to="/seller/dashboard"
+              className="bg-gradient-to-r from-green-400 to-green-600 text-white font-bold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:from-green-500 hover:to-green-700 transition-all duration-200"
             >
-              Home
+              Seller Dashboard
             </Link>
-
-            {/* Seller/Admin Dashboard Button */}
-            {isAuthenticated && (user?.role!=="buyer") && (
+          )}
+          {isAuthenticated && user?.role === "seller" && isSeller && (
+            <button
+              onClick={handleSwitchToBuyer}
+              className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white font-bold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:from-yellow-500 hover:to-yellow-700 transition-all duration-200"
+            >
+              {isSwitched ? "Switch to Buyer" : "Switch to Seller"}
+            </button>
+          )}
+          {!isAuthenticated ? (
+            <>
               <Link
-                to="/seller/dashboard"
-                className="ml-6 text-white bg-green-600 hover:bg-green-700 font-medium px-4 py-2 rounded-lg"
+                to="/login"
+                className="text-white font-semibold text-lg hover:text-orange-200 transition-colors duration-200"
               >
-                Seller Dashboard
+                Login
               </Link>
-            )}
-             {isAuthenticated && user?.role === "seller" && (
-              <button
-                onClick={handleSwitchToBuyer}
-                className="ml-4 text-white bg-yellow-500 hover:bg-yellow-600 font-medium px-4 py-2 rounded-lg"
+              <Link
+                to="/register"
+                className="bg-gradient-to-r from-pink-400 to-pink-600 text-white font-bold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:from-pink-500 hover:to-pink-700 transition-all duration-200"
               >
-                Switch to Buyer
+                Register
+              </Link>
+            </>
+          ) : (
+            <div className="relative" ref={profileRef}>
+              <button
+                className="flex items-center gap-2 focus:outline-none"
+                onClick={() => setProfileOpen((prev) => !prev)}
+              >
+                <span className="w-11 h-11 bg-white/40 backdrop-blur-md text-indigo-700 rounded-full flex items-center justify-center text-2xl font-extrabold border-2 border-white/70 shadow-lg">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </span>
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
               </button>
-            )}
-            <div className="inline-block ml-6">
-              {!isAuthenticated ? (
-                <>
-                  <Link
-                    to="/login"
-                    className="ml-6 text-gray-600 hover:text-blue-600 font-medium"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="ml-6 text-white bg-blue-600 hover:bg-blue-700 font-medium px-4 py-2 rounded-lg"
-                  >
-                    Register
-                  </Link>
-                </>
-              ) : (
-                <div className="relative inline-block text-left group">
-                  <button className="w-full px-4 py-2 text-left bg-white hover:bg-gray-100 flex items-center space-x-2">
-                    <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center">
-                      {user?.name?.charAt(0).toUpperCase()}
-                    </span>
-                    <span className="font-medium">{user?.name}</span>
-                    <span className="text-sm text-gray-500">{user?.role}</span>
-                  </button>
-
-                  <div className="absolute right-0 mt-2 w-48 bg-black rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="py-1">
-                      <Link
-                        to={
-                          user?.role === "admin"
-                            ? "/admin/dashboard"
-                            : user?.role === "recruiter"
-                            ? "/recruiter/dashboard"
-                            : "/dashboard"
-                        }
-                        className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                      >
-                        Dashboard
-                      </Link>
-                      <button
-                        className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                        onClick={handleLogout}
-                      >
-                        Logout
-                      </button>
-                    </div>
+              {/* Dropdown */}
+              {profileOpen && (
+                <div className="absolute right-0 mt-4 w-56 bg-white/90 backdrop-blur-2xl rounded-2xl shadow-2xl border border-gray-200 z-50 animate-fadeIn">
+                  <div className="py-4 px-4 flex flex-col gap-2">
+                    <span className="text-center text-lg font-bold text-indigo-700 mb-1">{user?.name}</span>
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-gradient-to-r hover:from-indigo-100 hover:to-orange-100 transition"
+                      onClick={() => setProfileOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      className="w-full text-left px-4 py-2 rounded-lg text-red-600 font-medium hover:bg-gradient-to-r hover:from-pink-100 hover:to-orange-100 transition"
+                      onClick={() => {
+                        setProfileOpen(false);
+                        handleLogout();
+                      }}
+                    >
+                      Logout
+                    </button>
                   </div>
                 </div>
               )}
             </div>
-          </div>
+          )}
+        </div>
+
+        {/* Mobile Menu Button */}
+        <div className="md:hidden flex items-center">
+          <button
+            className="text-white hover:text-orange-200 focus:outline-none"
+            onClick={() => setMobileOpen((prev) => !prev)}
+          >
+            <svg className="w-9 h-9" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
         </div>
       </div>
-    </nav>
-  );
+
+      {/* Mobile Dropdown */}
+      {mobileOpen && (
+        <div className="md:hidden mt-3 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl border z-50 animate-fadeIn">
+          <div className="flex flex-col gap-1 py-4 px-3">
+            <Link
+              to="/"
+              className="px-4 py-2 rounded-lg text-gray-700 font-semibold hover:bg-gradient-to-r hover:from-indigo-100 hover:to-orange-100 transition"
+              onClick={() => setMobileOpen(false)}
+            >
+              Home
+            </Link>
+            {isAuthenticated && isSeller && isSwitched && (user?.role !== "buyer") && (
+              <Link
+                to="/seller/dashboard"
+                className="px-4 py-2 rounded-lg text-green-700 font-semibold hover:bg-gradient-to-r hover:from-green-100 hover:to-green-200 transition"
+                onClick={() => setMobileOpen(false)}
+              >
+                Seller Dashboard
+              </Link>
+            )}
+            {isAuthenticated && user?.role === "seller" && isSeller && (
+              <button
+                onClick={() => {
+                  setMobileOpen(false);
+                  handleSwitchToBuyer();
+                }}
+                className="px-4 py-2 rounded-lg text-yellow-700 font-semibold hover:bg-gradient-to-r hover:from-yellow-100 hover:to-yellow-200 text-left transition"
+              >
+                {isSwitched ? "Switch to Buyer" : "Switch to Seller"}
+              </button>
+            )}
+            {!isAuthenticated ? (
+              <>
+                <Link
+                  to="/login"
+                  className="px-4 py-2 rounded-lg text-gray-700 font-semibold hover:bg-gradient-to-r hover:from-indigo-100 hover:to-orange-100 transition"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-4 py-2 rounded-lg text-pink-700 font-semibold hover:bg-gradient-to-r hover:from-pink-100 hover:to-orange-100 transition"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Register
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/profile"
+                  className="px-4 py-2 rounded-lg text-gray-700 font-semibold hover:bg-gradient-to-r hover:from-indigo-100 hover:to-orange-100 transition"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Profile
+                </Link>
+                <button
+                  className="w-full text-left px-4 py-2 rounded-lg text-red-600 font-semibold hover:bg-gradient-to-r hover:from-pink-100 hover:to-orange-100 transition"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    handleLogout();
+                  }}
+                >
+                  Logout
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+    {/* Animation for dropdown */}
+    <style>
+      {`
+        .animate-fadeIn {
+          animation: fadeIn 0.22s;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-12px);}
+          to { opacity: 1; transform: translateY(0);}
+        }
+      `}
+    </style>
+  </nav>
+);
+// ...existing code...
 };
 
 export default Navbar;

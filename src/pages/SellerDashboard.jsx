@@ -3,7 +3,7 @@ import Navbar from '../components/Navbar'
 
 function SellerDashboard() {
   return (
-    <div>SellerDashboard
+    <div>
       <div className="min-h-screen bg-gray-50">
         <Navbar/>
      </div>

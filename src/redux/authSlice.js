@@ -7,7 +7,9 @@ const authSlice = createSlice({
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        error: null
+        error: null,
+        isSeller: false,
+        setSwitcher: false
     },
     reducers: {
         setUser: (state, action) => {
@@ -31,10 +33,16 @@ const authSlice = createSlice({
             if (state.user) {
                 state.user = { ...state.user, ...action.payload };
             }
+        },
+        setIsSeller: (state, action) => {
+            state.isSeller = action.payload;
+        },
+        setSwitcher: (state, action) => {
+            state.isSellerSwitched = action.payload;
         }
     }
 })
 
-export const { setUser, clearUser, setLoading, setError, updateUser } = authSlice.actions;
+export const { setUser, clearUser, setLoading, setError, updateUser, setIsSeller, setSwitcher } = authSlice.actions;
 
 export default authSlice.reducer;
