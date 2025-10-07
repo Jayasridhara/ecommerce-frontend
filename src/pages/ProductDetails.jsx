@@ -7,23 +7,22 @@ import { useNavigate, useParams } from "react-router";
 import Navbar from "../components/Navbar";
 import { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import AlertModal from "./AlertModal";
 
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // ✅ Hooks must always be called — never conditionally
   const { items: wishlist } = useSelector((state) => state.wishlist);
   const { isAuthenticated } = useSelector((state) => state.auth);
 
-  // ✅ UseMemo ensures we don’t recompute on every render
-  const product = useMemo(
-    () => data.find((p) => p.id === parseInt(id)),
-    [id]
-  );
-
+  const product = useMemo(() => data.find((p) => p.id === parseInt(id)), [id]);
   const [rating, setRating] = useState(product?.rating || 4.5);
+
+  // ✅ Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   const isInWishlist = product ? wishlist.some((p) => p.id === product.id) : false;
 
@@ -35,12 +34,14 @@ export default function ProductDetails() {
     );
   }
 
+  // ✅ Handle wishlist click
   const handleWishlist = () => {
     if (!isAuthenticated) {
-      alert("Please log in to use the wishlist ❤️");
-      navigate("/login");
+      setModalMessage("Please log in to use the wishlist ❤️");
+      setShowModal(true);
       return;
     }
+
     if (isInWishlist) {
       dispatch(removeFromWishlist(product.id));
     } else {
@@ -48,9 +49,11 @@ export default function ProductDetails() {
     }
   };
 
+  // ✅ Handle rating click
   const handleRating = (value) => {
     if (!isAuthenticated) {
-      alert("Please log in to rate ⭐");
+      setModalMessage("Please log in to rate ⭐");
+      setShowModal(true);
       return;
     }
     setRating(value);
@@ -73,9 +76,7 @@ export default function ProductDetails() {
             className="absolute top-4 right-4 bg-black/50 p-2 rounded-full hover:bg-black/70 transition"
           >
             <Heart
-              className={`w-6 h-6 ${
-                isInWishlist ? "text-pink-500 fill-pink-500" : "text-white"
-              }`}
+              className={`w-6 h-6 ${isInWishlist ? "text-pink-500 fill-pink-500" : "text-white"}`}
             />
           </button>
         </div>
@@ -120,7 +121,7 @@ export default function ProductDetails() {
               Add to Cart
             </button>
             <button
-              onClick={() => alert("Proceeding to checkout...")}
+              onClick={() => setModalMessage("Proceeding to checkout...") || setShowModal(true)}
               className="bg-gradient-to-r from-purple-600 to-pink-500 px-5 py-2 rounded-lg font-semibold hover:opacity-90"
             >
               Buy Now
@@ -135,6 +136,19 @@ export default function ProductDetails() {
           </button>
         </div>
       </div>
+
+      {/* ✅ Alert Modal */}
+      <AlertModal
+        show={showModal}
+        onClose={() => {
+          setShowModal(false);
+          if (modalMessage.includes("log in")) {
+            navigate("/login");
+          }
+        }}
+      >
+        {modalMessage}
+      </AlertModal>
     </div>
   );
 }
