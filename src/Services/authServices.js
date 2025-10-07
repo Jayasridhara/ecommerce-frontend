@@ -17,6 +17,11 @@ export const getMe = async () => {
     return response.data;
 };
 
+export const profile = async () => {
+    const response = await protectedInstance.put("/auth/profile");
+    return response.data;
+};
+
 export const logoutUser = async () => {
     const response = await protectedInstance.post("/auth/logout");
     return response.data;

@@ -5,21 +5,32 @@ import SellerDashboard from "./pages/SellerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import UserDashboard from "./pages/UserDashboard";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 import Home from "./pages/Home";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Profile from "./components/Profile";
+import Cart from "./pages/Cart";
+import ProductDetails from "./pages/ProductDetails";
+import Wishlist from "./pages/Wishlist";
 const routes = [
   {
     path: "/",
     element: <Home/>
   },
-  // {
-  //   path:"/jobs/:id",
-  //   element:<JobDetails/>
-  // },
+   {
+    path: "/cart",
+    element: <Cart/>
+  },
+  {
+    path: "/product/:id",
+    element: <ProductDetails />,
+  },
+  {
+  path: "/wishlist",
+  element: <Wishlist />,
+  },
   {
     path:"/register",
     element:<Register/>
@@ -34,12 +45,12 @@ const routes = [
         element: <ForgotPassword />
   },
   {
-        path: "reset-password/:token", // ✅ correct reset route
+        path: "reset-password/:token", 
         element: <ResetPassword />
   },
   {
-    path:"/dashboard",
-    element:<UserDashboard/>
+        path: "/profile", 
+        element: <Profile />
   },
   {
     path:"/seller/dashboard",
