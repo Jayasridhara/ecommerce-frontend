@@ -13,7 +13,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const isSeller = useSelector((state) => state.auth.isSeller);
   const isSwitched = useSelector((state) => state.auth.isSellerSwitched);
-
+console.log(isSeller);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
