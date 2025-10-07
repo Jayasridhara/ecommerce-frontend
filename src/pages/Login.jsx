@@ -21,20 +21,21 @@ const Login = () => {
     try {
       const response = await loginUser(formData);
       dispatch(setUser(response.user));
-      if(response.user.role === "seller"){
+      if(response.user.role !== "buyer"){
         dispatch(setIsSeller(true));
+         dispatch(setSwitcher(true));
       }
       toast.success(response.message);
 
       // ✅ Navigate by role
-      if (response.user.role === "admin") {
-        navigate("/admin/dashboard");
-      } else if (response.user.role === "seller") {
-        dispatch(setSwitcher(true));
-        navigate("/seller/dashboard");
-      } else {
-        navigate("/dashboard");
-     }
+      // if (response.user.role === "admin") {
+      //   navigate("/admin/dashboard");
+      // } else if (response.user.role === "seller") {
+      //   dispatch(setSwitcher(true));
+      //   navigate("/seller/dashboard");
+      // } else {
+        navigate("/");
+    // }
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || error.message || "Login failed";

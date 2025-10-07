@@ -13,7 +13,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const isSeller = useSelector((state) => state.auth.isSeller);
   const isSwitched = useSelector((state) => state.auth.isSellerSwitched);
-console.log(isSeller);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -40,12 +40,12 @@ console.log(isSeller);
   const handleSwitchToBuyer = () => {
     if (!isSwitched) {
       dispatch(setSwitcher(true));
-      toast.info("Switched to Buyer Dashboard");
-      navigate("/dashboard");
+      toast.info("Switched to Seller Dashboard");
+      navigate("/");
     } else {
       dispatch(setSwitcher(false));
-      toast.info("Switched to Seller Dashboard");
-      navigate("/seller/dashboard");
+      toast.info("Switched to Buyer Dashboard");
+      navigate("/");
     }
   };
 
@@ -73,7 +73,7 @@ return (
               Seller Dashboard
             </Link>
           )}
-          {isAuthenticated && user?.role === "seller" && isSeller && (
+          {isAuthenticated && user?.role !== "buyer" && isSeller && (
             <button
               onClick={handleSwitchToBuyer}
               className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white font-bold px-6 py-2 rounded-full shadow-lg hover:scale-105 hover:from-yellow-500 hover:to-yellow-700 transition-all duration-200"
