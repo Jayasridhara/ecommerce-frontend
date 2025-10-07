@@ -19,7 +19,7 @@ export default function AlertModal({ show, onClose, children }) {
           exit={{ scale: 0.8, opacity: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <h2 className="text-xl font-bold text-black mb-4">Notice</h2>
+          <h2 className="text-xl font-bold text-black mb-4">Alert</h2>
           <p className="text-gray-600 mb-6">{children}</p>
           <button
             onClick={onClose}
