@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { addToCart } from "../redux/cartSlice";
-import { useDispatch, useSelector } from "react-redux";
-import data from "../Dataset/product";
+import { useDispatch } from "react-redux";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router";
+import { getAllProducts } from "../Services/productServices";
+import { useMemo } from "react";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -15,86 +16,129 @@ export default function Home() {
   const [priceRange, setPriceRange] = useState(1500);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   useEffect(() => {
-    setProducts(data);
+    const fetchProducts = async () => {
+      try {
+        const res = await getAllProducts();
+        // Suppose res is either an array or an object with .products
+        const list = res.products || res;
+        setProducts(list);
+      } catch (err) {
+        console.error("Error loading products:", err);
+      }
+    };
+    fetchProducts();
   }, []);
+
+  // Compute unique filter options
+  const types = useMemo(() => {
+    const set_ = new Set();
+    products.forEach((p) => {
+      if (p.productType) set_.add(p.productType);
+    });
+    return Array.from(set_).sort();
+  }, [products]);
+
+  const colors = useMemo(() => {
+    const set_ = new Set();
+    products.forEach((p) => {
+      if (p.color) set_.add(p.color);
+    });
+    return Array.from(set_).sort();
+  }, [products]);
+
+  const ratings = useMemo(() => {
+    const set_ = new Set();
+    products.forEach((p) => {
+      if (p.rating != null) {
+        // e.g. use integer or one decimal
+        set_.add(Math.floor(p.rating)); 
+      }
+    });
+    return Array.from(set_).sort();
+  }, [products]);
 
   // Filtering logic
   const filtered = products.filter((p) => {
-    const matchName = p.name.toLowerCase().includes(query.toLowerCase());
+    const matchName = p.name?.toLowerCase().includes(query.toLowerCase());
     const matchType = filterType === "All" || p.productType === filterType;
-    const matchRating = filterRating === "All" || p.rating >= parseFloat(filterRating);
-    const matchColor = filterColor === "All" || p.color.toLowerCase() === filterColor.toLowerCase();
+    const matchRating =
+      filterRating === "All" || p.rating >= parseFloat(filterRating);
+    const matchColor =
+      filterColor === "All" || p.color === filterColor;
     const matchPrice = p.price <= priceRange;
     return matchName && matchType && matchRating && matchColor && matchPrice;
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-black text-white font-sans">
+   <section className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-white text-gray-800 font-sans">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="text-center py-16">
-        <h2 className="text-4xl font-extrabold text-purple-200">Upgrade Your Lifestyle</h2>
-        <p className="text-gray-300 mt-3">
+      {/* Hero */}
+      <section className="text-center py-6 bg-gradient-to-br from-purple-100 via-pink-50 to-white shadow-sm">
+        <h2 className="text-4xl font-bold text-gray-800">Upgrade Your Lifestyle</h2>
+        <p className="text-gray-500 mt-3">
           Discover the latest and greatest in fashion and electronics.
         </p>
       </section>
 
       {/* Filters */}
-   {/* Filters Section */}
-      <section className="max-w-6xl mx-auto px-4 mb-10">
-        <div className="flex flex-wrap justify-center gap-4 p-5 rounded-2xl  shadow-lg">
+      <section className="max-w-6xl mx-auto px-4 mb-10 mt-6">
+        <div className="flex flex-wrap justify-center gap-4 p-5 rounded-xl bg-white shadow-sm">
           {/* Search */}
           <input
             type="text"
             placeholder="🔍 Search products..."
-            className="px-4 py-2 rounded-lg bg-purple-800/60 text-white placeholder-gray-300 focus:ring-2 focus:ring-pink-500 focus:outline-none w-56"
+            className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:outline-none w-56"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
 
           {/* Product Type */}
           <select
-            className="px-4 py-2 rounded-lg bg-purple-800/60 text-white focus:ring-2 focus:ring-pink-500 focus:outline-none"
+            className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
           >
             <option value="All">All Types</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Mens Dress">Men's Dress</option>
-            <option value="Women Dress">Women's Dress</option>
+            {types.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
           </select>
 
           {/* Rating */}
           <select
-            className="px-4 py-2 rounded-lg bg-purple-800/60 text-white focus:ring-2 focus:ring-pink-500 focus:outline-none"
+            className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
             value={filterRating}
             onChange={(e) => setFilterRating(e.target.value)}
           >
             <option value="All">All Ratings</option>
-            <option value="4">4★ & up</option>
-            <option value="4.5">4.5★ & up</option>
-            <option value="4.8">4.8★ & up</option>
+            {ratings.map((rate) => (
+              <option key={rate} value={rate}>
+                {rate}★ & up
+              </option>
+            ))}
           </select>
 
           {/* Color */}
           <select
-            className="px-4 py-2 rounded-lg bg-purple-800/60 text-white focus:ring-2 focus:ring-pink-500 focus:outline-none"
+            className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
             value={filterColor}
             onChange={(e) => setFilterColor(e.target.value)}
           >
             <option value="All">All Colors</option>
-            <option value="Black">Black</option>
-            <option value="White">White</option>
-            <option value="Blue">Blue</option>
-            <option value="Red">Red</option>
-            <option value="Pink">Pink</option>
-            <option value="Brown">Brown</option>
+            {colors.map((col) => (
+              <option key={col} value={col}>
+                {col}
+              </option>
+            ))}
           </select>
 
           {/* Price Range */}
-          <div className="flex flex-col items-center text-white">
+          <div className="flex flex-col items-center text-gray-700">
             <label className="text-sm mb-1">Max Price: ${priceRange}</label>
             <input
               type="range"
@@ -102,11 +146,11 @@ export default function Home() {
               max="1500"
               value={priceRange}
               onChange={(e) => setPriceRange(Number(e.target.value))}
-              className="w-40 accent-pink-500"
+              className="w-40 accent-blue-500"
             />
           </div>
         </div>
-</section>
+      </section>
 
       {/* Product Grid */}
       <section className="max-w-6xl mx-auto px-4 pb-20">
@@ -114,38 +158,44 @@ export default function Home() {
           {filtered.length > 0 ? (
             filtered.map((product) => (
               <motion.div
-                key={product.id}
+                key={product._id}
                 whileHover={{ scale: 1.03 }}
-                onClick={() => navigate(`/product/${product.id}`)}
-                className="bg-purple-800/70 p-4 rounded-xl shadow-md text-center hover:shadow-purple-700 transition cursor-pointer"
+                onClick={() => navigate(`/product/${product._id}`)}
+                className="bg-white p-4 rounded-lg shadow hover:shadow-md transition duration-200 cursor-pointer flex flex-col justify-between"
               >
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="rounded-lg mb-3 w-full h-40 object-cover"
+                  className="rounded-md mb-3 w-full h-40 object-cover"
                 />
-                <h4 className="font-semibold text-purple-100 mb-1">{product.name}</h4>
-                <p className="text-gray-300">${product.price.toFixed(2)}</p>
-                <p className="text-yellow-400 text-sm mb-2">⭐ {product.rating}</p>
-                <p className="text-sm text-gray-400 mb-3">{product.color} | {product.productType}</p>
+                <div className="flex-grow">
+                  <h4 className="font-semibold text-lg text-gray-800 mb-1 truncate">{product.name}</h4>
+                  <p className="text-blue-600 font-medium">${product.price.toFixed(2)}</p>
+                  <p className="text-yellow-500 text-sm mt-1">⭐ {product.rating}</p>
+                  <p className="text-sm text-gray-500 mb-3">{product.color} | {product.productType}</p>
+                </div>
                 <button
-                  onClick={() => dispatch(addToCart(product))}
-                  className="bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2 px-3 rounded-lg font-semibold hover:opacity-90"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    dispatch(addToCart(product));
+                  }}
+                  className="mt-auto bg-gradient-to-r from-pink-500 to-purple-500 text-white py-2 px-3 rounded-md font-semibold transition"
                 >
                   Add to Cart
                 </button>
               </motion.div>
             ))
           ) : (
-            <p className="text-center col-span-full text-gray-300">No products found.</p>
+            <p className="text-center col-span-full text-gray-500">No products found.</p>
           )}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="text-center py-6 border-t border-purple-700/50 text-gray-400 text-sm">
+      <footer className="text-center py-6 border-t border-gray-300 text-gray-500 text-sm bg-white">
         © 2025 ShopVerse
       </footer>
-    </div>
+    </section>
+
   );
 }

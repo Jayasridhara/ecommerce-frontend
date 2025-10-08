@@ -14,6 +14,7 @@ import Profile from "./components/Profile";
 import Cart from "./pages/Cart";
 import ProductDetails from "./pages/ProductDetails";
 import Wishlist from "./pages/Wishlist";
+
 const routes = [
   {
     path: "/",
@@ -53,8 +54,8 @@ const routes = [
         element: <Profile />
   },
   {
-    path:"/seller/dashboard",
-    element:<SellerDashboard/>
+    path:"/seller",
+    element:<SellerDashboard/>,
   },
   {
     path:"/admin/dashboard",

@@ -75,7 +75,7 @@ export default function Navbar() {
           {/* If seller -> show Create Product (smaller button) */}
           {isAuthenticated && user?.role === "seller" && isSeller && !isSellerPage && (
             <button
-              onClick={() => navigate("/seller/dashboard")}
+              onClick={() => navigate("/seller")}
               className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold px-3 py-1.5 rounded-full shadow-lg border border-white/30 hover:from-pink-400 hover:to-purple-500 transition-all duration-200 hover:scale-105 text-sm"
             >
               <PlusCircle className="w-4 h-4" />
