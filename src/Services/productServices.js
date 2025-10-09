@@ -43,6 +43,12 @@ export const fetchProductById = async (id) => {
 };
 
 
+export const getFilteredProducts = async (filters) => {
+  const response = await instance.get(`/products/filter`, { params: filters });
+  return response.data;
+};
+
+
 export const uploadProductImage = async (productId, imageFile) => {
   const form = new FormData();
   form.append('image', imageFile);
@@ -56,5 +62,15 @@ export const uploadProductImage = async (productId, imageFile) => {
       }
     }
   );
+  return res.data;
+};
+
+export const getProductReviews = async (id) => {
+  const res = await protectedInstance.get(`/products/${id}/reviews`);
+  return res.data;
+};
+
+export const addOrUpdateReview = async (id, reviewData) => {
+  const res = await protectedInstance.post(`/products/${id}/reviews`, reviewData);
   return res.data;
 };

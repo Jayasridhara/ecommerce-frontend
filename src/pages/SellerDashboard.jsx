@@ -1,19 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { Edit3, Trash2, PlusCircle } from "lucide-react";
+import { Edit3, Trash2, PlusCircle, SlidersHorizontal } from "lucide-react";
 import ProductFormModal from "./ProductFormModal";
+import Navbar from "../components/Navbar";
 import {
   fetchSellerProducts,
   createProducts,
   updateProducts,
   deleteProducts,
   uploadProductImage,
+  getFilteredProducts, // 👈 new API call for filtering
 } from "../Services/productServices";
-import Navbar from "../components/Navbar";
 
 export default function SellerDashboard() {
   const [products, setProducts] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [category, setCategory] = useState("All");
+  const [filters, setFilters] = useState({
+    type: "",
+    color: "",
+    minPrice: "",
+    maxPrice: "",
+  });
+  const [availableFilters, setAvailableFilters] = useState({
+    types: [],
+    colors: [],
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -31,12 +40,33 @@ export default function SellerDashboard() {
     loadProducts();
   }, []);
 
+  // 🚀 Load all products & extract available filters dynamically
   const loadProducts = async () => {
     try {
       const data = await fetchSellerProducts();
-      setProducts(Array.isArray(data) ? data : []);
+      const productArray = Array.isArray(data) ? data : [];
+      setProducts(productArray);
+
+      // Extract unique filter options
+      const uniqueTypes = [...new Set(productArray.map((p) => p.productType))];
+      const uniqueColors = [...new Set(productArray.map((p) => p.color))];
+      setAvailableFilters({ types: uniqueTypes, colors: uniqueColors });
     } catch (error) {
       console.error("Error loading products:", error);
+    }
+  };
+
+  // 🧭 Handle filtering via backend API
+  const handleFilterChange = async (e) => {
+    const { name, value } = e.target;
+    const updatedFilters = { ...filters, [name]: value };
+    setFilters(updatedFilters);
+
+    try {
+      const res = await getFilteredProducts(updatedFilters);
+      setProducts(Array.isArray(res.products) ? res.products : []);
+    } catch (error) {
+      console.error("Error applying filters:", error);
     }
   };
 
@@ -82,15 +112,9 @@ export default function SellerDashboard() {
     });
   };
 
-  const filteredProducts = products.filter((p) => {
-    const matchesName = p.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = category === "All" || p.productType === category;
-    return matchesName && matchesCategory;
-  });
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 text-gray-800">
-      <Navbar/>
+      <Navbar />
       {/* Header */}
       <header className="bg-white shadow-md py-4 px-8 flex items-center justify-between sticky top-0 z-10 border-b">
         <h1 className="text-2xl font-bold text-blue-600 tracking-tight">
@@ -107,38 +131,78 @@ export default function SellerDashboard() {
         </button>
       </header>
 
-      {/* Search & Filter */}
-      <div className="bg-white shadow-sm mx-8 mt-6 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <input
-          type="text"
-          placeholder="🔍 Search products..."
-          className="border rounded-lg px-3 py-2 w-full sm:w-60 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      {/* Filters Section */}
+      <div className="bg-white shadow-sm mx-8 mt-6 rounded-xl p-4 flex flex-wrap justify-between items-center gap-4">
+        <div className="flex items-center gap-2 text-gray-600 font-medium">
+          <SlidersHorizontal size={18} />
+          Filters
+        </div>
+
+        {/* Product Type */}
         <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          name="type"
+          value={filters.type}
+          onChange={handleFilterChange}
+          className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-300"
         >
-          <option>All</option>
-          <option>Home Accessories</option>
-          <option>Men's Dress</option>
-          <option>Women's Dress</option>
+          <option value="">All Types</option>
+          {availableFilters.types.map((t, i) => (
+            <option key={i} value={t}>
+              {t}
+            </option>
+          ))}
         </select>
+
+        {/* Color */}
+        <select
+          name="color"
+          value={filters.color}
+          onChange={handleFilterChange}
+          className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-300"
+        >
+          <option value="">All Colors</option>
+          {availableFilters.colors.map((c, i) => (
+            <option key={i} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+
+        {/* Price Range */}
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            name="minPrice"
+            placeholder="Min"
+            value={filters.minPrice}
+            onChange={handleFilterChange}
+            className="w-20 border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-300"
+          />
+          <span>-</span>
+          <input
+            type="number"
+            name="maxPrice"
+            placeholder="Max"
+            value={filters.maxPrice}
+            onChange={handleFilterChange}
+            className="w-20 border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-300"
+          />
+        </div>
       </div>
 
       {/* Products Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 px-8 py-8">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((prod) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 px-8 py-8">
+        {products.length > 0 ? (
+          products.map((prod) => (
             <div
               key={prod._id}
               className="bg-white rounded-xl shadow-md hover:shadow-lg transition-transform duration-300 hover:-translate-y-1 overflow-hidden"
             >
               <div className="relative h-40 bg-gray-100">
                 <img
-                  src={prod.image || "https://via.placeholder.com/300x200?text=No+Image"}
+                  src={
+                    prod.image || "https://via.placeholder.com/300x200?text=No+Image"
+                  }
                   alt={prod.name}
                   className="w-full h-full object-cover"
                 />
@@ -170,11 +234,29 @@ export default function SellerDashboard() {
                   </button>
                 </div>
               </div>
-              <div className="p-3">
-                <h2 className="font-semibold text-base truncate">{prod.name}</h2>
-                <p className="text-xs text-gray-500">{prod.productType}</p>
-                <p className="text-blue-600 font-semibold mt-1">${prod.price}</p>
+            <div className="p-4">
+              <h2 className="font-semibold text-lg text-gray-800 truncate">
+                {prod.name}
+              </h2>
+
+              <div className="flex justify-between items-center mt-1">
+                <p className="text-sm text-gray-500">{prod.productType}</p>
+                {prod.color && (
+                  <div className="flex items-center space-x-1">
+                    <span className="text-xs text-gray-500">Color:</span>
+                    <div
+                      className="w-4 h-4 rounded-full border border-gray-300"
+                      style={{ backgroundColor: prod.color.toLowerCase() }}
+                      title={prod.color}
+                    ></div>
+                  </div>
+                )}
               </div>
+
+  <p className="text-blue-600 font-bold text-base mt-2">
+    ${prod.price}
+  </p>
+</div>
             </div>
           ))
         ) : (

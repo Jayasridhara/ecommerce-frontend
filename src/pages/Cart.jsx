@@ -61,7 +61,7 @@ export default function Cart() {
                 key={item.id}
                 whileHover={{ scale: 1.02 }}
                 className="flex flex-col sm:flex-row items-center justify-between py-4 cursor-pointer hover:bg-purple-50 rounded-lg px-3 transition"
-                onClick={() => navigate(`/product/${item.id}`)}
+                onClick={() => navigate(`/product/${item._id}`)}
               >
                 {/* Left Section — Image + Name */}
                 <div className="flex items-center gap-4">
