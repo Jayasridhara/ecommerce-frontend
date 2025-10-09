@@ -61,16 +61,7 @@ export default function Navbar() {
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-5">
           {/* Search */}
-         <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-gray-300" />
-            <input
-              type="text"
-              placeholder="Search products..."
-              className="bg-purple-700/50 text-sm text-gray-100 rounded-full pl-9 pr-4 py-2 outline-none placeholder-gray-300 w-56 focus:ring-2 focus:ring-pink-400 transition"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </div>
+        
 
           {/* If seller -> show Create Product (smaller button) */}
           {isAuthenticated && user?.role === "seller" && isSeller && !isSellerPage && (

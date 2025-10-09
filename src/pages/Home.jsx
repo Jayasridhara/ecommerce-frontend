@@ -143,7 +143,7 @@ export default function Home() {
             <input
               type="range"
               min="0"
-              max="1500"
+              max="10000"
               value={priceRange}
               onChange={(e) => setPriceRange(Number(e.target.value))}
               className="w-40 accent-blue-500"

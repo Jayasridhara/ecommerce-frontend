@@ -31,7 +31,8 @@ export const deleteProducts = async (id) => {
 };
 
 export const fetchSellerProducts = async () => {
-  const res = await protectedInstance.get("/products/seller", { withCredentials: true });
+  const res = await protectedInstance.get("/products/seller/getproduct", { withCredentials: true });
+  console.log(res)
   return res.data.products; // <-- FIXED: plural
 };
 
@@ -41,3 +42,19 @@ export const fetchProductById = async (id) => {
   return res.data.product || res.data;
 };
 
+
+export const uploadProductImage = async (productId, imageFile) => {
+  const form = new FormData();
+  form.append('image', imageFile);
+  const res = await protectedInstance.post(
+    `/products/${productId}/upload-image`,
+    form,
+    {
+      headers: {
+        // Let browser set boundary automatically
+        "Content-Type": "multipart/form-data",
+      }
+    }
+  );
+  return res.data;
+};
