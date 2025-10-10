@@ -58,7 +58,7 @@ export default function Cart() {
           <div className="divide-y divide-gray-200">
             {items.map((item) => (
               <motion.div
-                key={item.id}
+                key={item._id}
                 whileHover={{ scale: 1.02 }}
                 className="flex flex-col sm:flex-row items-center justify-between py-4 cursor-pointer hover:bg-purple-50 rounded-lg px-3 transition"
                 onClick={() => navigate(`/product/${item._id}`)}
