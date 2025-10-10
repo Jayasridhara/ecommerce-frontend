@@ -1,15 +1,16 @@
 import { loginUser } from "../Services/authServices";
-import { setUser,setIsSeller,setSwitcher } from "../redux/authSlice";
+import { setUser, setIsSeller, setSwitcher } from "../redux/authSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "buyer", // ✅ default role
+    role: "buyer",
   });
 
   const navigate = useNavigate();
@@ -17,25 +18,15 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     try {
       const response = await loginUser(formData);
       dispatch(setUser(response.user));
-      if(response.user.role !== "buyer"){
+      if (response.user.role !== "buyer") {
         dispatch(setIsSeller(true));
-         dispatch(setSwitcher(true));
+        dispatch(setSwitcher(true));
       }
       toast.success(response.message);
-
-      // ✅ Navigate by role
-      // if (response.user.role === "admin") {
-      //   navigate("/admin/dashboard");
-      // } else if (response.user.role === "seller") {
-      //   dispatch(setSwitcher(true));
-      //   navigate("/seller/dashboard");
-      // } else {
-        navigate("/");
-    // }
+      navigate("/");
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || error.message || "Login failed";
@@ -44,106 +35,120 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <Link to="/" className="flex items-center justify-center space-x-2">
-            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-2xl">JP</span>
-            </div>
-          </Link>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{" "}
-            <Link
-              to="/register"
-              className="font-medium text-blue-600 hover:text-blue-500"
+    <section className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-100 via-pink-50 to-white text-gray-800 font-sans px-4">
+      {/* Logo / Header */}
+      <Link to="/" className="flex items-center space-x-3 mb-6">
+        <motion.div
+          initial={{ rotate: -10 }}
+          animate={{ rotate: 0 }}
+          className="w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg"
+        >
+          <span className="text-white text-2xl font-extrabold">SV</span>
+        </motion.div>
+        <h1 className="text-3xl font-bold text-gray-800">ShopVerse</h1>
+      </Link>
+
+      {/* Login Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-md bg-white/70 backdrop-blur-lg rounded-2xl shadow-lg p-8 border border-gray-200"
+      >
+        <h2 className="text-center text-2xl font-semibold text-gray-800 mb-1">
+          Welcome Back 👋
+        </h2>
+        <p className="text-center text-gray-500 text-sm mb-6">
+          Sign in to continue exploring amazing deals
+        </p>
+
+        {/* Login Form */}
+        <form onSubmit={handleLogin} className="space-y-5">
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
             >
-              create a new account
-            </Link>
-          </p>
-        </div>
-
-        {/* ✅ Login Form */}
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Email address"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Password"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between mt-3">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label
-                htmlFor="remember-me"
-                className="ml-2 block text-sm text-gray-900"
-              >
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <Link
-                to="/forgot-password"
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
-                Forgot your password?
-              </Link>
-            </div>
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pink-400 focus:outline-none bg-white/90"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+            />
           </div>
 
           <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Sign in
-            </button>
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-400 focus:outline-none bg-white/90"
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+            />
           </div>
+
+          <div className="flex items-center justify-between text-sm mt-2">
+            <label className="flex items-center gap-2 text-gray-600">
+              <input
+                type="checkbox"
+                className="accent-purple-500 rounded"
+                id="remember-me"
+              />
+              Remember me
+            </label>
+            <Link
+              to="/forgot-password"
+              className="text-pink-600 hover:text-pink-500 font-medium"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            type="submit"
+            className="w-full py-2.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold rounded-md shadow-md hover:shadow-lg transition duration-200"
+          >
+            Sign In
+          </motion.button>
         </form>
-      </div>
-    </div>
+
+        <p className="text-center text-gray-600 text-sm mt-6">
+          Don’t have an account?{" "}
+          <Link
+            to="/register"
+            className="text-pink-600 font-semibold hover:text-pink-500"
+          >
+            Create one
+          </Link>
+        </p>
+      </motion.div>
+
+      {/* Footer */}
+      <footer className="text-gray-500 text-sm mt-10">
+        © 2025 ShopVerse — All rights reserved
+      </footer>
+    </section>
   );
 };
 

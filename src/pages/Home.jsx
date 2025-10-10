@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
+// src/pages/Home.jsx
+
 import { motion } from "framer-motion";
 import { addToCart } from "../redux/cartSlice";
 import { useDispatch } from "react-redux";
 import Navbar from "../components/Navbar";
-import { useNavigate } from "react-router";
-import { getAllProducts } from "../Services/productServices";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useLoaderData, useNavigate } from "react-router";
 
 export default function Home() {
-  const [products, setProducts] = useState([]);
+  const products = useLoaderData(); 
+  console.log(products)
+  // ✅ data from loader
   const [query, setQuery] = useState("");
   const [filterType, setFilterType] = useState("All");
   const [filterRating, setFilterRating] = useState("All");
@@ -17,45 +19,22 @@ export default function Home() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await getAllProducts();
-        // Suppose res is either an array or an object with .products
-        const list = res.products || res;
-        setProducts(list);
-      } catch (err) {
-        console.error("Error loading products:", err);
-      }
-    };
-    fetchProducts();
-  }, []);
-
   // Compute unique filter options
   const types = useMemo(() => {
     const set_ = new Set();
-    products.forEach((p) => {
-      if (p.productType) set_.add(p.productType);
-    });
+    products.forEach((p) => p.productType && set_.add(p.productType));
     return Array.from(set_).sort();
   }, [products]);
 
   const colors = useMemo(() => {
     const set_ = new Set();
-    products.forEach((p) => {
-      if (p.color) set_.add(p.color);
-    });
+    products.forEach((p) => p.color && set_.add(p.color));
     return Array.from(set_).sort();
   }, [products]);
 
   const ratings = useMemo(() => {
     const set_ = new Set();
-    products.forEach((p) => {
-      if (p.rating != null) {
-        // e.g. use integer or one decimal
-        set_.add(Math.floor(p.rating)); 
-      }
-    });
+    products.forEach((p) => p.rating != null && set_.add(Math.floor(p.rating)));
     return Array.from(set_).sort();
   }, [products]);
 
@@ -65,14 +44,13 @@ export default function Home() {
     const matchType = filterType === "All" || p.productType === filterType;
     const matchRating =
       filterRating === "All" || p.rating >= parseFloat(filterRating);
-    const matchColor =
-      filterColor === "All" || p.color === filterColor;
+    const matchColor = filterColor === "All" || p.color === filterColor;
     const matchPrice = p.price <= priceRange;
     return matchName && matchType && matchRating && matchColor && matchPrice;
   });
 
   return (
-   <section className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-white text-gray-800 font-sans">
+    <section className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-white text-gray-800 font-sans">
       <Navbar />
 
       {/* Hero */}
@@ -103,9 +81,7 @@ export default function Home() {
           >
             <option value="All">All Types</option>
             {types.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
+              <option key={type}>{type}</option>
             ))}
           </select>
 
@@ -116,9 +92,9 @@ export default function Home() {
             onChange={(e) => setFilterRating(e.target.value)}
           >
             <option value="All">All Ratings</option>
-            {ratings.map((rate) => (
-              <option key={rate} value={rate}>
-                {rate}★ & up
+            {ratings.map((r) => (
+              <option key={r} value={r}>
+                {r}★ & up
               </option>
             ))}
           </select>
@@ -130,14 +106,12 @@ export default function Home() {
             onChange={(e) => setFilterColor(e.target.value)}
           >
             <option value="All">All Colors</option>
-            {colors.map((col) => (
-              <option key={col} value={col}>
-                {col}
-              </option>
+            {colors.map((c) => (
+              <option key={c}>{c}</option>
             ))}
           </select>
 
-          {/* Price Range */}
+          {/* Price */}
           <div className="flex flex-col items-center text-gray-700">
             <label className="text-sm mb-1">Max Price: ${priceRange}</label>
             <input
@@ -169,10 +143,14 @@ export default function Home() {
                   className="rounded-md mb-3 w-full h-40 object-cover"
                 />
                 <div className="flex-grow">
-                  <h4 className="font-semibold text-lg text-gray-800 mb-1 truncate">{product.name}</h4>
+                  <h4 className="font-semibold text-lg text-gray-800 mb-1 truncate">
+                    {product.name}
+                  </h4>
                   <p className="text-blue-600 font-medium">${product.price.toFixed(2)}</p>
                   <p className="text-yellow-500 text-sm mt-1">⭐ {product.rating}</p>
-                  <p className="text-sm text-gray-500 mb-3">{product.color} | {product.productType}</p>
+                  <p className="text-sm text-gray-500 mb-3">
+                    {product.color} | {product.productType}
+                  </p>
                 </div>
                 <button
                   onClick={(e) => {
@@ -196,6 +174,5 @@ export default function Home() {
         © 2025 ShopVerse
       </footer>
     </section>
-
   );
 }

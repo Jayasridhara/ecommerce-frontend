@@ -3,6 +3,7 @@ import protectedInstance from "../instance/protectedInstance";
 
 
 export const registerUser = async (userData) => {
+    console.log(userData,"user")
     const response = await instance.post("/auth/register", userData);
     return response.data;
 };

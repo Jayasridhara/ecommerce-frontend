@@ -27,17 +27,17 @@ export default function Wishlist() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {items.map((p) => (
               <div
-                key={p.id}
+                key={p._id}
                 className="bg-purple-800/70 p-4 rounded-xl shadow-md text-center hover:shadow-purple-600 transition"
               >
                 <img
                   src={p.image}
                   alt={p.name}
                   className="w-full h-40 object-cover rounded-lg mb-3 cursor-pointer"
-                  onClick={() => navigate(`/product/${p.id}`)}
+                  onClick={() => navigate(`/product/${p._id}`)}
                 />
                 <h4 className="font-semibold text-purple-100 mb-1">{p.name}</h4>
-                <p className="text-gray-300">${p.price.toFixed(2)}</p>
+                <p className="text-gray-300">${p.price.toFixed(2)|| 'N/A'}</p>
                 <div className="flex justify-center gap-3 mt-3">
                   <button
                     onClick={() => dispatch(addToCart(p))}
@@ -46,7 +46,7 @@ export default function Wishlist() {
                     <ShoppingCart className="w-4 h-4" /> Add
                   </button>
                   <button
-                    onClick={() => dispatch(removeFromWishlist(p.id))}
+                    onClick={() => dispatch(removeFromWishlist(p._id))}
                     className="bg-red-500 hover:bg-red-400 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-1"
                   >
                     <Trash2 className="w-4 h-4" /> Remove

@@ -14,11 +14,18 @@ import Profile from "./components/Profile";
 import Cart from "./pages/Cart";
 import ProductDetails from "./pages/ProductDetails";
 import Wishlist from "./pages/Wishlist";
+import { productsLoader } from "./loader/productLoader";
 
 const routes = [
   {
     path: "/",
-    element: <Home/>
+    element: <Home/>,
+    loader: productsLoader,
+    hydrateFallbackElement: (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    ),
   },
    {
     path: "/cart",
@@ -56,6 +63,7 @@ const routes = [
   {
     path:"/seller",
     element:<SellerDashboard/>,
+    
   },
   {
     path:"/admin/dashboard",

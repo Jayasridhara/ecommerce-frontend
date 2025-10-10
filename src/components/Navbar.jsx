@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { Link, useNavigate, useLocation } from "react-router";
 import { ShoppingCart, Search, PlusCircle, Home as HomeIcon,Heart  } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -52,9 +53,30 @@ export default function Navbar() {
         {/* Logo or Home icon */}
         <div className="flex items-center gap-3">
         
-            <Link to="/" className="text-2xl font-extrabold tracking-wide text-white drop-shadow-md">
-              ShopVerse
-            </Link>
+           <Link to="/" className="flex items-center gap-2">
+            {/* Motion wrapper for logo and title */}
+            <motion.div
+              className="flex items-center gap-2 text-2xl font-extrabold tracking-wide text-white drop-shadow-md text-decoration-none"
+              whileHover={{
+                scale: 1.1,
+                rotate: 5,
+              }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+            >
+              <motion.div
+                whileHover={{ scale: 1.2, rotate: 15 }}
+                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              >
+                <ShoppingCart className="w-6 h-6 text-white cursor-pointer" />
+              </motion.div>
+              <motion.span
+                whileHover={{ scale: 1.05, x: 2 }}
+                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              >
+                ShopVerse
+              </motion.span>
+            </motion.div>
+          </Link>
          
         </div>
 
@@ -118,7 +140,7 @@ export default function Navbar() {
                 className="flex items-center gap-2 focus:outline-none"
                 onClick={() => setProfileOpen((prev) => !prev)}
               >
-                <span className="w-11 h-11 bg-white/40 backdrop-blur-md text-indigo-700 rounded-full flex items-center justify-center text-2xl font-extrabold border-2 border-white/70 shadow-lg">
+                <span className="w-11 h-11 bg-white/40 backdrop-blur-md text-white rounded-full flex items-center justify-center text-2xl font-extrabold border-2 border-white/70 shadow-lg">
                   {user?.name?.charAt(0).toUpperCase()}
                 </span>
                 <svg
@@ -140,7 +162,7 @@ export default function Navbar() {
                     </span>
                     <Link
                       to="/profile"
-                      className="block px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-gradient-to-r hover:from-indigo-100 hover:to-orange-100 transition"
+                      className="block px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-gradient-to-r hover:from-indigo-100 hover:to-orange-100 transition text-decroration-none"
                       onClick={() => setProfileOpen(false)}
                     >
                       Profile

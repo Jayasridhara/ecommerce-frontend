@@ -45,7 +45,7 @@ export default function ProductDetails() {
     fetchData();
   }, [id]);
 
-  const isInWishlist = product ? wishlist.some((p) => p._id === product._id) : false;
+  const isInWishlist = product ? wishlist.some((p) => p.id === product._id) : false;
 
   if (loading) {
     return (
@@ -70,7 +70,7 @@ export default function ProductDetails() {
       return;
     }
     if (isInWishlist) dispatch(removeFromWishlist(product._id));
-    else dispatch(addToWishlist(product));
+    else dispatch(addToWishlist({userId:user.id,productId:product._id}));
   };
 
   // 🟢 Handle rating click

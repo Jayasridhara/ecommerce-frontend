@@ -16,8 +16,8 @@ export default function SellerDashboard() {
   const [filters, setFilters] = useState({
     type: "",
     color: "",
-    minPrice: "",
-    maxPrice: "",
+    minPrice: undefined ,
+    maxPrice: undefined ,
   });
   const [availableFilters, setAvailableFilters] = useState({
     types: [],
@@ -33,6 +33,8 @@ export default function SellerDashboard() {
     description: "",
     image: "",
     imageFile: null,
+    stock: 0,      // new
+    salesCount: 0,  // new
   });
   const [editingProduct, setEditingProduct] = useState(null);
 
@@ -72,11 +74,21 @@ export default function SellerDashboard() {
 
   const handleAddOrUpdate = async () => {
     try {
+         const payload = {
+        ...formData,
+        price: formData.price === "" ? 0 : Number(formData.price),
+        stock: formData.stock === "" ? 0 : Number(formData.stock),
+        salesCount: formData.salesCount === "" ? 0 : Number(formData.salesCount),
+        productType:
+          formData.productType === "Other" && formData.productTypeOther
+            ? formData.productTypeOther
+            : formData.productType,
+      }
       let savedProduct;
       if (editingProduct) {
-        savedProduct = await updateProducts(editingProduct._id, formData);
+        savedProduct = await updateProducts(editingProduct._id, payload);
       } else {
-        savedProduct = await createProducts(formData);
+        savedProduct = await createProducts(payload);
       }
 
       if (formData.imageFile) {
@@ -109,6 +121,8 @@ export default function SellerDashboard() {
       description: "",
       image: "",
       imageFile: null,
+      stock: 0,
+      salesCount: 0,
     });
   };
 
@@ -219,6 +233,8 @@ export default function SellerDashboard() {
                         description: prod.description,
                         image: prod.image,
                         imageFile: null,
+                        stock: prod.stock || 0,
+                        salesCount: prod.salesCount || 0,
                       });
                       setIsModalOpen(true);
                     }}
@@ -253,9 +269,12 @@ export default function SellerDashboard() {
                 )}
               </div>
 
-  <p className="text-blue-600 font-bold text-base mt-2">
-    ${prod.price}
-  </p>
+            <p className="text-blue-600 font-bold text-base mt-2">
+              ${prod.price}
+            </p>
+              <p className="text-gray-500 text-sm mt-1">
+              Stock: {prod.stock} | Sold: {prod.salesCount}
+              </p>
 </div>
             </div>
           ))
