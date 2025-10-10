@@ -6,7 +6,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import { Provider } from "react-redux";
-import store from "./redux/store";
+
 import Home from "./pages/Home";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -14,7 +14,8 @@ import Profile from "./components/Profile";
 import Cart from "./pages/Cart";
 import ProductDetails from "./pages/ProductDetails";
 import Wishlist from "./pages/Wishlist";
-import { productsLoader } from "./loader/productLoader";
+import { productsByIdLoader, productsLoader } from "./loader/productLoader";
+import store from "./redux/store";
 
 const routes = [
   {
@@ -34,6 +35,7 @@ const routes = [
   {
     path: "/product/:id",
     element: <ProductDetails />,
+    loader: productsByIdLoader,
   },
   {
   path: "/wishlist",

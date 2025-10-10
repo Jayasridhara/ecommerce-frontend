@@ -27,3 +27,12 @@ export const logoutUser = async () => {
     const response = await protectedInstance.post("/auth/logout");
     return response.data;
 };
+
+
+export const updateUserCart = async ({ userId, productId, qty = 1 }) => {
+  const response = await protectedInstance.post(
+    `/auth/users/${userId}/cart`,
+    { productId, qty }
+  );
+  return response.data; // { cart: [...] }
+};

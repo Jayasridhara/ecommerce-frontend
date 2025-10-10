@@ -3,7 +3,7 @@ import { addToCart } from "../redux/cartSlice";
 import data from "../Dataset/product";
 import { addToWishlist, removeFromWishlist } from "../redux/wishlistSlice";
 import { Heart, Star } from "lucide-react";
-import { useNavigate, useParams } from "react-router";
+import { useLoaderData, useNavigate, useParams } from "react-router";
 import Navbar from "../components/Navbar";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,56 +12,25 @@ import { addOrUpdateReview, getProductById, getProductReviews } from "../Service
 import { useEffect } from "react";
 
 export default function ProductDetails() {
-  const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const loaderData = useLoaderData();
+  const { product: initialProduct, reviews: initialReviews } = loaderData;
 
   const { items: wishlist } = useSelector((state) => state.wishlist);
   const { isAuthenticated, user, token } = useSelector((state) => state.auth);
 
-  const [product, setProduct] = useState(null);
-  const [rating, setRating] = useState(0);
+  const [product, setProduct] = useState(initialProduct);
+  const [reviews, setReviews] = useState(initialReviews);
+  const [rating, setRating] = useState(initialProduct.rating || 0);
   const [comment, setComment] = useState("");
-  const [reviews, setReviews] = useState([]); // 🟢
-  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
-  // 🟢 Fetch product & reviews
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await getProductById(id);
-        setProduct(res.product);
-        setRating(res.product.rating || 0);
-        const reviewRes = await getProductReviews(id);
-        setReviews(reviewRes.reviews || []);
-      } catch (err) {
-        console.error("Error loading product:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [id]);
-
-  const isInWishlist = product ? wishlist.some((p) => p.id === product._id) : false;
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-700 text-lg bg-gradient-to-br from-purple-100 via-pink-50 to-white">
-        Loading product details...
-      </div>
-    );
-  }
-
-  if (!product) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-700 text-lg bg-gradient-to-br from-purple-100 via-pink-50 to-white">
-        Product not found.
-      </div>
-    );
-  }
+  const isInWishlist = product
+    ? wishlist.some((p) => p.id === product._id)
+    : false;
 
   const handleWishlist = () => {
     if (!isAuthenticated) {
@@ -69,11 +38,13 @@ export default function ProductDetails() {
       setShowModal(true);
       return;
     }
-    if (isInWishlist) dispatch(removeFromWishlist(product._id));
-    else dispatch(addToWishlist({userId:user.id,productId:product._id}));
+    if (isInWishlist) {
+      dispatch(removeFromWishlist(product._id));
+    } else {
+      dispatch(addToWishlist({ userId: user.id, productId: product._id }));
+    }
   };
 
-  // 🟢 Handle rating click
   const handleRating = (value) => {
     if (!isAuthenticated) {
       setModalMessage("Please log in to rate ⭐");
@@ -83,7 +54,6 @@ export default function ProductDetails() {
     setRating(value);
   };
 
-  // 🟢 Handle review submit
   const handleReviewSubmit = async () => {
     if (!isAuthenticated) {
       setModalMessage("Please log in to post a review 💬");
@@ -96,13 +66,11 @@ export default function ProductDetails() {
       return;
     }
     try {
-      const res = await addOrUpdateReview(
-        id,
-        { rating, comment },
-        token
-      );
+      const res = await addOrUpdateReview(product._id, { rating, comment }, token);
+      // update state from response
       setProduct(res.product);
-      setReviews(res.product.reviews);
+      setReviews(res.product.reviews || []);
+      setRating(res.product.rating || rating);
       setModalMessage("Review submitted successfully ✅");
       setShowModal(true);
       setComment("");
@@ -165,8 +133,7 @@ export default function ProductDetails() {
             <span className="text-purple-700">Color:</span> {product.color}
           </p>
           <p className="text-gray-700 mb-4">
-            <span className="text-purple-700">Category:</span>{" "}
-            {product.productType}
+            <span className="text-purple-700">Category:</span> {product.productType}
           </p>
 
           <p className="text-gray-700 mb-6 leading-relaxed">
@@ -174,7 +141,6 @@ export default function ProductDetails() {
               "This product blends modern design with top performance."}
           </p>
 
-          {/* Buttons */}
           <div className="flex gap-4">
             <button
               onClick={() => dispatch(addToCart(product))}
@@ -194,7 +160,7 @@ export default function ProductDetails() {
         </div>
       </div>
 
-      {/* 🟢 Review Section */}
+      {/* Review Section */}
       <div className="max-w-3xl mx-auto px-6 mt-12 mb-20">
         <h3 className="text-2xl font-semibold text-purple-800 mb-4">Customer Reviews</h3>
 
@@ -257,12 +223,13 @@ export default function ProductDetails() {
         )}
       </div>
 
-      {/* Alert Modal */}
       <AlertModal
         show={showModal}
         onClose={() => {
           setShowModal(false);
-          if (modalMessage.includes("log in")) navigate("/login");
+          if (modalMessage.includes("log in")) {
+            navigate("/login");
+          }
         }}
       >
         {modalMessage}
