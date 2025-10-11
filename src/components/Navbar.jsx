@@ -1,25 +1,13 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate, useLocation } from "react-router";
 import { ShoppingCart, Search, PlusCircle, Home as HomeIcon,Heart  } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearUser, setIsSeller } from "../redux/authSlice";
 import { clearCart } from "../redux/cartSlice";
-import { clearWishlist } from "../redux/wishlistSlice";
+import { clearWishlist, fetchWishlist } from "../redux/wishlistSlice"; // <-- added
 
 export default function Navbar() {
-  // ...existing code...
-
-  const wishlistCount = useSelector((state) => {
-  const items = state.wishlist.items || [];  // flatten one nested array level if present
-  const flat = items.reduce((acc, cur) => {
-  if (Array.isArray(cur)) return acc.concat(cur);
-  if (cur) acc.push(cur);
-  return acc;
-  }, []);
-  return flat.length;
-  });
- // ...existing code...
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -29,10 +17,31 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { isAuthenticated, user, isSeller } = useSelector((state) => state.auth);
+  const { isAuthenticated, user, isSeller, token } = useSelector((state) => state.auth);
   const cartCount = useSelector((state) =>
     state.cart.items.reduce((sum, item) => sum + item.qty, 0)
   );
+
+  // compute wishlist count robustly (flatten and ignore falsy)
+  const wishlistCount = useSelector((state) => {
+    const items = state.wishlist.items || [];
+    const flat = items.reduce((acc, cur) => {
+      if (Array.isArray(cur)) return acc.concat(cur.filter(Boolean));
+      if (cur) acc.push(cur);
+      return acc;
+    }, []);
+    return flat.length;
+  });
+
+  useEffect(() => {
+    // fetch wishlist whenever user logs in or user id changes
+    if (isAuthenticated && user?.id) {
+      dispatch(fetchWishlist({ userId: user.id }));
+    } else {
+      // clear local wishlist when logged out
+      // optional: dispatch(clearWishlist());
+    }
+  }, [isAuthenticated, user?.id, token, dispatch]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

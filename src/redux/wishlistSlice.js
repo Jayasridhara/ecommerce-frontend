@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { addToWishlist, removeFromWishlist } from "../Services/wishlistServices";
+import { addToWishlist, removeFromWishlist, fetchWishlist } from "../Services/wishlistServices";
 
 const wishlistSlice = createSlice({
   name: "wishlist",
@@ -49,7 +49,7 @@ const wishlistSlice = createSlice({
       })
       .addCase(addToWishlist.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload;
+        state.error = action.payload || action.error.message;
       })
       // Remove from Wishlist
       .addCase(removeFromWishlist.pending, (state) => {
@@ -77,11 +77,37 @@ const wishlistSlice = createSlice({
       })
       .addCase(removeFromWishlist.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload;
+        state.error = action.payload || action.error.message;
+      })
+      // Fetch Wishlist (NEW)
+      .addCase(fetchWishlist.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchWishlist.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        const payload = action.payload;
+        // normalize payload to flat array
+        let items = [];
+        if (Array.isArray(payload)) items = payload;
+        else if (payload && Array.isArray(payload.wishlist)) items = payload.wishlist;
+        else items = [];
+
+        // dedupe and remove falsy
+        const map = new Map();
+        items.forEach((p) => {
+          if (!p) return;
+          const key = String(p._id ?? p.id ?? p);
+          if (!map.has(key)) map.set(key, p);
+        });
+        state.items = Array.from(map.values());
+      })
+      .addCase(fetchWishlist.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || action.error.message;
       });
   },
 });
 
-export const {  clearWishlist } = wishlistSlice.actions;
-export { addToWishlist, removeFromWishlist }; 
+export const { clearWishlist } = wishlistSlice.actions;
+export { addToWishlist, removeFromWishlist, fetchWishlist };
 export default wishlistSlice.reducer;

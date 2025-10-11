@@ -26,3 +26,17 @@ export const removeFromWishlist = createAsyncThunk(
     }
   }
 );
+
+// Fetch user's wishlist
+export const fetchWishlist = createAsyncThunk(
+  "wishlist/fetch",
+  async ({ userId }, { rejectWithValue }) => {
+    try {
+      // expecting backend route: GET /api/v1/wishlist/:userId
+      const response = await protectedInstance.get(`wishlist/${userId}`);
+      return response.data; // could be an array or { wishlist: [...] }
+    } catch (error) {
+      return rejectWithValue(error.response?.data ?? error.message);
+    }
+  }
+);
