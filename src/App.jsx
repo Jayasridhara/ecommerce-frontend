@@ -16,62 +16,69 @@ import ProductDetails from "./pages/ProductDetails";
 import Wishlist from "./pages/Wishlist";
 import { productsByIdLoader, productsLoader } from "./loader/productLoader";
 import store from "./redux/store";
+import AppLayout from "./components/AppLayout";
+import authLoader from "./loader/authLoader";
 
 const routes = [
   {
     path: "/",
-    element: <Home/>,
-    loader: productsLoader,
+    element: <AppLayout />,
+    loader: authLoader, // Attach your auth loader here
     hydrateFallbackElement: (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     ),
-  },
-   {
-    path: "/cart",
-    element: <Cart/>
-  },
-  {
-    path: "/product/:id",
-    element: <ProductDetails />,
-    loader: productsByIdLoader,
-  },
-  {
-  path: "/wishlist",
-  element: <Wishlist />,
-  },
-  {
-    path:"/register",
-    element:<Register/>
-  },
-  {
-    path:"/login",
-    element:<Login/>
-
-  },
-  {
+    children: [
+      {
+        index: true,
+        element: <Home />,
+        loader: productsLoader,
+      },
+      {
+        path: "cart",
+        element: <Cart />,
+      },
+      {
+        path: "product/:id",
+        element: <ProductDetails />,
+        loader: productsByIdLoader,
+      },
+      {
+        path: "wishlist",
+        element: <Wishlist />,
+      },
+      {
+        path: "register",
+        element: <Register />,
+      },
+      {
+        path: "login",
+        element: <Login />,
+      },
+      {
         path: "forgot-password",
-        element: <ForgotPassword />
+        element: <ForgotPassword />,
+      },
+      {
+        path: "reset-password/:token",
+        element: <ResetPassword />,
+      },
+      {
+        path: "profile",
+        element: <Profile />,
+      },
+      {
+        path: "seller",
+        element: <SellerDashboard />,
+      },
+      {
+        path: "admin/dashboard",
+        element: <AdminDashboard />,
+      },
+    ],
   },
-  {
-        path: "reset-password/:token", 
-        element: <ResetPassword />
-  },
-  {
-        path: "/profile", 
-        element: <Profile />
-  },
-  {
-    path:"/seller",
-    element:<SellerDashboard/>,
-    
-  },
-  {
-    path:"/admin/dashboard",
-    element:<AdminDashboard/>
-  }
-]
+];
 
 const router = createBrowserRouter(routes, {
   future: {
@@ -84,30 +91,30 @@ const router = createBrowserRouter(routes, {
 });
 
 function App() {
-  return <Provider store={store}>
-    <div
-      className="min-h-screen bg-gradient-to-br from-gray-50 to-white"
-    >
-      <RouterProvider
-        router={router}
-        future={{
-          v7_startTransition: true,
-        }}
-      />
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-    </div>
-  </Provider>
+  return (
+    <Provider store={store}>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+        <RouterProvider
+          router={router}
+          future={{
+            v7_startTransition: true,
+          }}
+        />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+      </div>
+    </Provider>
+  );
 }
 
-export default App
+export default App;

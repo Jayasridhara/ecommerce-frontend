@@ -1,4 +1,3 @@
-
 import { addToCart } from "../redux/cartSlice";
 import data from "../Dataset/product";
 import { addToWishlist, removeFromWishlist } from "../redux/wishlistSlice";
@@ -8,8 +7,8 @@ import Navbar from "../components/Navbar";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AlertModal from "./AlertModal";
-import { addOrUpdateReview, getProductById, getProductReviews } from "../Services/productServices";
-import { useEffect } from "react";
+import { addOrUpdateReview} from "../Services/productServices";
+
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -28,10 +27,20 @@ export default function ProductDetails() {
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
+  // normalize wishlist (flat array of product objects or id strings)
+  const sanitizedWishlist = Array.isArray(wishlist)
+    ? wishlist.flatMap((p) => (Array.isArray(p) ? p : p ? [p] : []))
+    : [];
   const isInWishlist = product
-    ? wishlist.some((p) => p.id === product._id)
+    ? sanitizedWishlist.some((p) => {
+        if (!p) return false;
+        if (typeof p === "object" && (p._id || p.id)) return String(p._id ?? p.id) === String(product._id);
+        return String(p) === String(product._id);
+      })
     : false;
-
+console.log("Current product:", product);
+console.log(wishlist,wishlist)
+console.log("Is in wishlist:", isInWishlist);
   const handleWishlist = () => {
     if (!isAuthenticated) {
       setModalMessage("Please log in to use the wishlist ❤️");
@@ -39,7 +48,7 @@ export default function ProductDetails() {
       return;
     }
     if (isInWishlist) {
-      dispatch(removeFromWishlist(product._id));
+      dispatch(removeFromWishlist({ userId: user.id, productId: product._id }));
     } else {
       dispatch(addToWishlist({ userId: user.id, productId: product._id }));
     }

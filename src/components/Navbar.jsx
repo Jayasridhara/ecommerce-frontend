@@ -8,7 +8,18 @@ import { clearCart } from "../redux/cartSlice";
 import { clearWishlist } from "../redux/wishlistSlice";
 
 export default function Navbar() {
-  const wishlistCount = useSelector((state) => state.wishlist.items.length);
+  // ...existing code...
+
+  const wishlistCount = useSelector((state) => {
+  const items = state.wishlist.items || [];  // flatten one nested array level if present
+  const flat = items.reduce((acc, cur) => {
+  if (Array.isArray(cur)) return acc.concat(cur);
+  if (cur) acc.push(cur);
+  return acc;
+  }, []);
+  return flat.length;
+  });
+ // ...existing code...
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState("");

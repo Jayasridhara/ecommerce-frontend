@@ -1,12 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import instance from "../instance/instance";
+import protectedInstance from "../instance/protectedInstance";
 
 // Add to Wishlist
 export const addToWishlist = createAsyncThunk(
   "wishlist/add",
   async ({ userId, productId }, { rejectWithValue }) => {
     try {
-      const response = await instance.post("wishlist/add", { userId, productId });
+      const response = await protectedInstance.post("wishlist/add", { userId, productId });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -19,7 +19,7 @@ export const removeFromWishlist = createAsyncThunk(
   "wishlist/remove",
   async ({ userId, productId }, { rejectWithValue }) => {
     try {
-      const response = await instance.post("wishlist/remove", { userId, productId });
+      const response = await protectedInstance.post("wishlist/remove", { userId, productId });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);

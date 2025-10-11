@@ -21,8 +21,31 @@ const wishlistSlice = createSlice({
       })
       .addCase(addToWishlist.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const exists = state.items.find((p) => p.id === action.payload.id);
-        if (!exists) state.items.push(action.payload);
+        const payload = action.payload;
+        // Normalize all possible payload shapes to a flat array of products
+        let newItems = [];
+        if (Array.isArray(payload)) {
+          newItems = payload;
+        } else if (payload && Array.isArray(payload.wishlist)) {
+          newItems = payload.wishlist;
+        } else if (payload && (payload._id || payload.id)) {
+          // merge single product object, avoid duplicates by _id or id
+          const idKey = payload._id ? "_id" : "id";
+          const exists = state.items.find((p) => String(p._id || p.id) === String(payload[idKey]));
+          if (!exists) state.items.push(payload);
+          return;
+        } else {
+          // unknown payload -> keep existing
+          return;
+        }
+        // dedupe by _id (or id fallback)
+        const map = new Map();
+        newItems.forEach((p) => {
+          if (!p) return;
+          const key = String(p._id ?? p.id ?? p);
+          if (!map.has(key)) map.set(key, p);
+        });
+        state.items = Array.from(map.values());
       })
       .addCase(addToWishlist.rejected, (state, action) => {
         state.status = "failed";
@@ -34,7 +57,23 @@ const wishlistSlice = createSlice({
       })
       .addCase(removeFromWishlist.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.items = state.items.filter((p) => p.id !== action.payload.id);
+        const payload = action.payload;
+        // If server returned the full updated wishlist array
+        if (Array.isArray(payload)) {
+          state.items = payload;
+          return;
+        }
+        if (payload && Array.isArray(payload.wishlist)) {
+          state.items = payload.wishlist;
+          return;
+        }
+        // If payload contains the removed id or product object
+        const removedId = payload && (payload.productId || payload._id || payload.id);
+        if (removedId) {
+          state.items = state.items.filter((p) => String(p._id ?? p.id) !== String(removedId));
+          return;
+        }
+        // fallback: do nothing (keep state)
       })
       .addCase(removeFromWishlist.rejected, (state, action) => {
         state.status = "failed";

@@ -1,4 +1,3 @@
-
 import { removeFromWishlist } from "../redux/wishlistSlice";
 import { addToCart } from "../redux/cartSlice";
 
@@ -9,10 +8,12 @@ import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function Wishlist() {
-  const { items } = useSelector((state) => state.wishlist);
+  const items = useSelector((state) => state.wishlist.items || []);
+  const { isAuthenticated, user, token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  console.log("Wishlist items:", items);
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-black text-white">
       <Navbar />
@@ -21,7 +22,7 @@ export default function Wishlist() {
           Your Wishlist ❤️
         </h1>
 
-        {items.length === 0 ? (
+        {!items || items.length === 0 ? (
           <p className="text-center text-gray-400">Your wishlist is empty.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -37,7 +38,7 @@ export default function Wishlist() {
                   onClick={() => navigate(`/product/${p._id}`)}
                 />
                 <h4 className="font-semibold text-purple-100 mb-1">{p.name}</h4>
-                <p className="text-gray-300">${p.price.toFixed(2)|| 'N/A'}</p>
+                <p className="text-gray-300">${p.price || 'N/A'}</p>
                 <div className="flex justify-center gap-3 mt-3">
                   <button
                     onClick={() => dispatch(addToCart(p))}
@@ -46,7 +47,7 @@ export default function Wishlist() {
                     <ShoppingCart className="w-4 h-4" /> Add
                   </button>
                   <button
-                    onClick={() => dispatch(removeFromWishlist(p._id))}
+                    onClick={() => dispatch(removeFromWishlist({ userId: user.id, productId: p._id }))}
                     className="bg-red-500 hover:bg-red-400 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-1"
                   >
                     <Trash2 className="w-4 h-4" /> Remove
