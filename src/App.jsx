@@ -18,6 +18,7 @@ import { productsByIdLoader, productsLoader } from "./loader/productLoader";
 import store from "./redux/store";
 import AppLayout from "./components/AppLayout";
 import authLoader from "./loader/authLoader";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
 
 const routes = [
   {
@@ -75,6 +76,10 @@ const routes = [
       {
         path: "admin/dashboard",
         element: <AdminDashboard />,
+      },
+       {
+        path: "checkout-success",
+        element: <CheckoutSuccess />,
       },
     ],
   },

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
+
+import { loadStripe } from "@stripe/stripe-js";
 import {
   removeFromCart,
   increaseQty,
@@ -10,12 +12,15 @@ import {
 import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router";
 import AlertModal from "./AlertModal";
+import { createCheckoutSession } from "../Services/paymentService";
+import Navbar from "../components/Navbar";
 
 export default function Cart() {
   const { items } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   // 👇 Watch for when cart becomes empty
   useEffect(() => {
@@ -23,6 +28,45 @@ export default function Cart() {
       setShowAlert(true);
     }
   }, [items]);
+
+  const handleCheckout = async () => {
+    if (items.length === 0) return;
+    setCheckoutLoading(true);
+    try {
+      const payloadItems = items.map((i) => ({
+        id: i._id ?? i.id,
+        name:i.name,
+        qty: i.qty || 1,
+        price: i.price.toFixed(2)
+      }));
+
+      const data = await createCheckoutSession(payloadItems);
+      console.log('checkout response', data);
+
+      // Prefer direct redirect using session.url returned by server
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+
+      // Fallback: if server returned sessionId + publishableKey (not recommended)
+      if (data.sessionId && data.publishableKey) {
+        // Only use loadStripe if publishableKey is present and looks valid
+        const stripe = await loadStripe(data.publishableKey);
+        if (!stripe) throw new Error('Failed to initialize Stripe');
+        const { error } = await stripe.redirectToCheckout({ sessionId: data.sessionId });
+        if (error) throw error;
+        return;
+      }
+
+      throw new Error('Invalid checkout response from server');
+    } catch (err) {
+      console.error('Checkout failed', err);
+      // show user friendly error/toast as needed
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
 
   const handleClearCart = () => {
     dispatch(clearCart());
@@ -38,6 +82,8 @@ export default function Cart() {
     .toFixed(2);
 
   return (
+   <>
+   <Navbar/>
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-white text-gray-800 font-sans px-6 py-10">
       <h1 className="text-3xl font-bold text-center mb-10 text-purple-600">
         Your Shopping Cart
@@ -129,6 +175,7 @@ export default function Cart() {
             </button>
             <motion.button
               whileHover={{ scale: 1.05 }}
+              onClick={handleCheckout}
               className="bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold px-6 py-2 rounded-lg shadow-lg"
             >
               Proceed to Checkout
@@ -140,5 +187,6 @@ export default function Cart() {
       {/* ✅ Alert Modal */}
       <AlertModal show={showAlert} onClose={handleCloseAlert} />
     </div>
+    </>
   );
 }
