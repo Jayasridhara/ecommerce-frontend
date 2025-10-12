@@ -1,10 +1,18 @@
-# netlify.toml
 [build]
+  # Directory to change to before starting a build
+  base = "."
+  
+  # Directory that contains the deploy-ready HTML files and assets
+  publish = "dist"
+  
+  # Default build command
   command = "npm run build"
-  publish = "build"
 
-# Redirect all routes to index.html (for React Router SPA)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[build.environment]
+  # Set Node.js version
+  NODE_VERSION = "18"
