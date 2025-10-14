@@ -46,8 +46,7 @@ export default function Cart() {
         qty: i.qty || 1,
         price: i.price.toFixed(2),
       }));
-
-      const data = await createCheckoutSession(payloadItems);
+      const data = await createCheckoutSession(payloadItems, { userId: user ? user._id : undefined });
       console.log("checkout response", data);
 
       if (data.url) {
