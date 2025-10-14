@@ -13,7 +13,6 @@ import { apiClearCart, apiGetCart, apiRemoveFromCart, apiUpdateCartQty } from ".
 
 export default function Cart() {
   const { items } = useSelector((state) => state.cart);
-  const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
@@ -47,7 +46,8 @@ export default function Cart() {
         qty: i.qty || 1,
         price: i.price.toFixed(2),
       }));
-      const data = await createCheckoutSession(payloadItems,user?._id);
+
+      const data = await createCheckoutSession(payloadItems);
       console.log("checkout response", data);
 
       if (data.url) {
