@@ -37,9 +37,11 @@ export default function Navbar() {
     // fetch wishlist whenever user logs in or user id changes
     if (isAuthenticated && user?.id) {
       dispatch(fetchWishlist({ userId: user.id }));
+
     } else {
       // clear local wishlist when logged out
       // optional: dispatch(clearWishlist());
+      
     }
   }, [isAuthenticated, user?.id, token, dispatch]);
 
