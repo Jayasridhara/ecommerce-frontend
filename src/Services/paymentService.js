@@ -8,7 +8,8 @@ export async function createCheckoutSession(items, { orderId, userId } = {}) {
     cancelUrl: `${window.location.origin}/cart`,
     // optional: include orderId / userId to ensure metadata populated on server
     ...(orderId ? { orderId } : {}),
-    ...(userId ? { providedUserId: userId } : {}),
+    ...(userId ? { providedUserId: userId } : {}), // <-- ADDED: send providedUserId to backend
+    
   };
 
   // debug log to confirm payload

@@ -13,6 +13,7 @@ import { apiClearCart, apiGetCart, apiRemoveFromCart, apiUpdateCartQty } from ".
 
 export default function Cart() {
   const { items } = useSelector((state) => state.cart);
+  const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
