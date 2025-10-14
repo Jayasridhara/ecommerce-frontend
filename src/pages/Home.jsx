@@ -1,8 +1,9 @@
 // src/pages/Home.jsx
 
 import { motion } from "framer-motion";
-import { addToCart } from "../redux/cartSlice";
-import { useDispatch } from "react-redux";
+import { apiAddToCart } from "../Services/cartServices";
+import { setCart } from "../redux/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/Navbar";
 import { useMemo, useState } from "react";
 import { useLoaderData, useNavigate } from "react-router";
@@ -18,7 +19,7 @@ export default function Home() {
   const [priceRange, setPriceRange] = useState(1500);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const { isAuthenticated, user, isSeller, token } = useSelector((state) => state.auth);
   // Compute unique filter options
   const types = useMemo(() => {
     const set_ = new Set();
@@ -153,9 +154,15 @@ export default function Home() {
                   </p>
                 </div>
                 <button
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.stopPropagation();
-                    dispatch(addToCart(product));
+                    if (!isAuthenticated) return navigate('/login');
+                    try {
+                      const resp = await apiAddToCart(product._id ?? product.id, 1);
+                      dispatch(setCart(resp.cart));
+                    } catch (err) {
+                      console.error('add to cart failed', err);
+                    }
                   }}
                   className="mt-auto bg-gradient-to-r from-pink-500 to-purple-500 text-white py-2 px-3 rounded-md font-semibold transition"
                 >

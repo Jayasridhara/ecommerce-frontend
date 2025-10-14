@@ -116,30 +116,64 @@ export default function Navbar() {
             </button>
           )}
 
-         {!isSellerPage && (
-          <Link to="/wishlist" className="relative hover:scale-105 transition-transform">
-            <Heart className="w-6 h-6 text-pink-400 cursor-pointer" />
-            {wishlistCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-pink-500 text-xs px-2 rounded-full">
-                {wishlistCount}
-              </span>
-            )}
-          </Link>
-        )}
-          {/* Cart (hide on seller page, disable if empty) */}
           {!isSellerPage && (
-            <Link
-              to={cartCount > 0 ? "/cart" : "#"}
-              className={`relative hover:scale-105 transition-transform ${cartCount === 0 ? "pointer-events-none opacity-50" : ""}`}
-            >
-              <ShoppingCart className="w-6 h-6 text-purple-300 cursor-pointer" />
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-pink-500 text-xs px-2 rounded-full">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-          )}
+              wishlistCount > 0 ? (
+                location.pathname.startsWith("/wishlist") ? (
+                  <div
+                    className="relative opacity-60 pointer-events-none"
+                    aria-current="page"
+                    title="Wishlist"
+                  >
+                    <Heart className="w-6 h-6 text-pink-300" />
+                    <span className="absolute -top-2 -right-2 bg-pink-500 text-xs px-2 rounded-full">
+                      {wishlistCount}
+                    </span>
+                  </div>
+                ) : (
+                  <Link to="/wishlist" className="relative hover:scale-105 transition-transform">
+                    <Heart className="w-6 h-6 text-pink-400 cursor-pointer" />
+                    <span className="absolute -top-2 -right-2 bg-pink-500 text-xs px-2 rounded-full">
+                      {wishlistCount}
+                    </span>
+                  </Link>
+                )
+              ) : (
+                <div
+                  className="relative opacity-50 cursor-not-allowed"
+                  title="Your wishlist is empty"
+                >
+                  <Heart className="w-6 h-6 text-pink-300" />
+                </div>
+              )
+            )}
+
+            {/* Cart */}
+            {!isSellerPage && (
+              cartCount > 0 ? (
+                location.pathname.startsWith("/cart") ? (
+                  <div className="relative opacity-60 pointer-events-none" title="Cart">
+                    <ShoppingCart className="w-6 h-6 text-green-400" />
+                    <span className="absolute -top-2 -right-2 bg-green-500 text-xs px-2 rounded-full">
+                      {cartCount}
+                    </span>
+                  </div>
+                ) : (
+                  <Link to="/cart" className="relative hover:scale-105 transition-transform">
+                    <ShoppingCart className="w-6 h-6 text-green-600" />
+                    <span className="absolute -top-2 -right-2 bg-green-500 text-xs px-2 rounded-full">
+                      {cartCount}
+                    </span>
+                  </Link>
+                )
+              ) : (
+                <div
+                  className="relative opacity-50 cursor-not-allowed"
+                  title="Your cart is empty"
+                >
+                  <ShoppingCart className="w-6 h-6 text-green-400" />
+                </div>
+              )
+            )}
 
           {/* Auth / Profile */}
           {!isAuthenticated ? (

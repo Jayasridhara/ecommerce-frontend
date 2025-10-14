@@ -29,6 +29,20 @@ const cartSlice = createSlice({
     clearCart: (state) => {
       state.items = [];
     },
+    setCart: (state, action) => {
+      const cart = action.payload || {};
+      state.items = (cart.cartItems || []).map((ci) => {
+        const p = ci.product || {};
+        return {
+          id: p._id ?? p.id ?? String(ci.product),
+          _id: p._id ?? p.id ?? String(ci.product),
+          name: p.name ?? ci.name,
+          image: p.image ?? ci.image,
+          price: Number(ci.price ?? p.price ?? 0),
+          qty: Number(ci.qty ?? 0),
+        };
+      });
+    },
   },
 });
 
@@ -38,6 +52,7 @@ export const {
   increaseQty,
   decreaseQty,
   clearCart,
+  setCart,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

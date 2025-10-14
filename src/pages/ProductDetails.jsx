@@ -8,6 +8,8 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AlertModal from "./AlertModal";
 import { addOrUpdateReview} from "../Services/productServices";
+import { apiAddToCart } from "../Services/cartServices";
+import { setCart } from "../redux/cartSlice";
 
 
 export default function ProductDetails() {
@@ -152,7 +154,19 @@ console.log("Is in wishlist:", isInWishlist);
 
           <div className="flex gap-4">
             <button
-              onClick={() => dispatch(addToCart(product))}
+              onClick={async () => {
+                if (!isAuthenticated) {
+                  setModalMessage("Please log in to add to cart");
+                  setShowModal(true);
+                  return;
+                }
+                try {
+                  const res = await apiAddToCart(product._id, 1);
+                  dispatch(setCart(res.cart));
+                } catch (err) {
+                  console.error('add to cart error', err);
+                }
+              }}
               className="bg-gradient-to-r from-pink-500 to-purple-600 px-5 py-2 rounded-lg font-semibold hover:opacity-90"
             >
               Add to Cart

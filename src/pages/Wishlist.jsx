@@ -6,6 +6,8 @@ import { Trash2, ShoppingCart } from "lucide-react";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import AlertModal from "./AlertModal";
 
 export default function Wishlist() {
   const items = useSelector((state) => state.wishlist.items || []);
@@ -13,7 +15,25 @@ export default function Wishlist() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  console.log("Wishlist items:", items);
+  const [showEmptyAlert, setShowEmptyAlert] = useState(false);
+
+  useEffect(() => {
+    if (!items || items.length === 0) {
+      setShowEmptyAlert(true);
+      const t = setTimeout(() => {
+        setShowEmptyAlert(false);
+        navigate("/");
+      }, 3000);
+      return () => clearTimeout(t);
+    } else {
+      setShowEmptyAlert(false);
+    }
+  }, [items, navigate]);
+
+  const handleAlertClose = () => {
+    setShowEmptyAlert(false);
+    navigate("/");
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-black text-white">
       <Navbar />
@@ -58,6 +78,12 @@ export default function Wishlist() {
           </div>
         )}
       </div>
+      <AlertModal
+        show={showEmptyAlert}
+        onClose={handleAlertClose}
+      >
+        Your wishlist is empty. Redirecting to home...
+      </AlertModal>
     </div>
   );
 }

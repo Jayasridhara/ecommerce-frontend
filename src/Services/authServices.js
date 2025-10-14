@@ -17,7 +17,7 @@ export const getMe = async () => {
     const response = await protectedInstance.get("/auth/getMe");
     return response.data;
 };
-
+    
 export const profile = async () => {
     const response = await protectedInstance.put("/auth/profile");
     return response.data;
@@ -29,10 +29,3 @@ export const logoutUser = async () => {
 };
 
 
-export const updateUserCart = async ({ userId, productId, qty = 1 }) => {
-  const response = await protectedInstance.post(
-    `/auth/users/${userId}/cart`,
-    { productId, qty }
-  );
-  return response.data; // { cart: [...] }
-};
