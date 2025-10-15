@@ -1,8 +1,7 @@
   import { useEffect, useState } from "react";
   import { useDispatch, useSelector } from "react-redux";
   import { motion } from "framer-motion";
-  import { toast } from "react-toastify";
-  import "react-toastify/dist/ReactToastify.css";
+
   import { loadStripe } from "@stripe/stripe-js";
   import { clearCart, setCart } from "../redux/cartSlice";
   import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
@@ -40,15 +39,7 @@
 
     const handleCheckout = async () => {
       if (items.length === 0) return;
-       // 🚫 Prevent seller from buying their own product
-      // const filteredItems = items.filter(
-      //   (item) => item.seller?._id !== user?._id && item.seller !== user?._id
-      // );
-
-      // if (filteredItems.length === 0) {
-      //   toast.warning("You cannot checkout your own product.");
-      //   return;
-      // }
+      
       setCheckoutLoading(true);
       try {
         const payloadItems = items.map((i) => ({
