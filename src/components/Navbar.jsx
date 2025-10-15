@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { clearUser, setIsSeller } from "../redux/authSlice";
 import { clearCart } from "../redux/cartSlice";
 import { clearWishlist, fetchWishlist } from "../redux/wishlistSlice"; // <-- added
-
+import defaultImage from "../assets/avatar-character.jpg";  
 export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -213,16 +213,26 @@ export default function Navbar() {
               {profileOpen && (
                 <div className="absolute right-0 mt-4 w-56 bg-white/90 backdrop-blur-2xl rounded-2xl shadow-2xl border border-gray-200 z-50 animate-fadeIn">
                   <div className="py-4 px-4 flex flex-col gap-2">
-                    <span className="text-center text-lg font-bold text-indigo-700 mb-1">
-                      {user?.name}
+                    <span className="text-left px-4 text-lg font-bold text-indigo-700 mb-1 ">
+                       {user?.name.charAt(0).toUpperCase()+user.name.slice(1)} {user?.role.charAt(0).toUpperCase()+user.role.slice(1)}
                     </span>
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-gradient-to-r hover:from-indigo-100 hover:to-orange-100 transition text-decroration-none"
-                      onClick={() => setProfileOpen(false)}
-                    >
-                      Profile
-                    </Link>
+                  
+                   <Link
+                    to="/profile"
+                    className="block px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-gradient-to-r hover:from-indigo-100 hover:to-orange-100 transition text-decoration-none"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setProfileOpen(false);
+                      if (location.pathname === "/profile") {
+                        // Already on profile — trigger re-fetch
+                        navigate(0); // full reload (simple)
+                      } else {
+                        navigate("/profile");
+                      }
+                    }}
+                  >
+                    Profile
+                  </Link>
                     <button
                       className="w-full text-left px-4 py-2 rounded-lg text-red-600 font-medium hover:bg-gradient-to-r hover:from-pink-100 hover:to-orange-100 transition"
                       onClick={() => {

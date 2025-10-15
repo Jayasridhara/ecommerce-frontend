@@ -29,3 +29,7 @@ export const logoutUser = async () => {
 };
 
 
+export const deleteProfile = async () => {
+  const response = await protectedInstance.delete('/auth/profile/delete');
+  return response.data;
+};
