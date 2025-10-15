@@ -1,9 +1,10 @@
 import protectedInstance from "../instance/protectedInstance";
 
 
-export async function createCheckoutSession(items) {
+export async function createCheckoutSession(items,userId) {
   const payload = {
     items,
+    userId,
     successUrl: `${window.location.origin}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
     cancelUrl: `${window.location.origin}/cart`,
   };
