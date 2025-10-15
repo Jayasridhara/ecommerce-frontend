@@ -41,14 +41,14 @@
     const handleCheckout = async () => {
       if (items.length === 0) return;
        // 🚫 Prevent seller from buying their own product
-      const filteredItems = items.filter(
-        (item) => item.seller?._id !== user?._id && item.seller !== user?._id
-      );
+      // const filteredItems = items.filter(
+      //   (item) => item.seller?._id !== user?._id && item.seller !== user?._id
+      // );
 
-      if (filteredItems.length === 0) {
-        toast.warning("You cannot checkout your own product.");
-        return;
-      }
+      // if (filteredItems.length === 0) {
+      //   toast.warning("You cannot checkout your own product.");
+      //   return;
+      // }
       setCheckoutLoading(true);
       try {
         const payloadItems = items.map((i) => ({
