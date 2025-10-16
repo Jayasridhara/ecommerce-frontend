@@ -5,6 +5,7 @@ import protectedInstance from "../instance/protectedInstance";
 export const getAllProducts= async (params = {}) => {
     const searchParams = new URLSearchParams(params).toString();
     const response = await instance.get(`/products?${searchParams}`);
+    console.log(response)
     return response.data;
 };
 

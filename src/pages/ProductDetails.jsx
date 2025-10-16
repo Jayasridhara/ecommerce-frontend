@@ -1,4 +1,4 @@
-import { addToCart } from "../redux/cartSlice";
+import { addToCart, fetchCart } from "../redux/cartSlice";
 import data from "../Dataset/product";
 import { addToWishlist, removeFromWishlist } from "../redux/wishlistSlice";
 import { Heart, Star } from "lucide-react";
@@ -163,6 +163,7 @@ console.log("Is in wishlist:", isInWishlist);
                 try {
                   const res = await apiAddToCart(product._id, 1);
                   dispatch(setCart(res.cart));
+                  dispatch(fetchCart()); 
                 } catch (err) {
                   console.error('add to cart error', err);
                 }

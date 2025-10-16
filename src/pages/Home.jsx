@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { apiAddToCart } from "../Services/cartServices";
-import { setCart } from "../redux/cartSlice";
+import { fetchCart, setCart } from "../redux/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/Navbar";
 import { useMemo, useState } from "react";
@@ -160,6 +160,7 @@ export default function Home() {
                     try {
                       const resp = await apiAddToCart(product._id ?? product.id, 1);
                       dispatch(setCart(resp.cart));
+                      dispatch(fetchCart()); 
                     } catch (err) {
                       console.error('add to cart failed', err);
                     }

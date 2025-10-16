@@ -1,4 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice ,createAsyncThunk } from "@reduxjs/toolkit";
+import { apiGetCart } from "../Services/cartServices";
 
 const cartSlice = createSlice({
   name: "cart",
@@ -46,6 +47,19 @@ const cartSlice = createSlice({
   },
 });
 
+export const fetchCart = createAsyncThunk("cart/fetchCart", async (_, { dispatch }) => {
+  const { cart } = await apiGetCart();
+  console.log("Fetched cart:", cart);
+  dispatch(setCart(cart));
+  
+  return cart.items;
+});
+
+extraReducers: (builder) => {
+  builder.addCase(fetchCart.fulfilled, (state, action) => {
+    state.items = action.payload;
+  });
+}
 export const {
   addToCart,
   removeFromCart,

@@ -10,6 +10,7 @@
   import { createCheckoutSession } from "../Services/paymentService";
   import Navbar from "../components/Navbar";
   import { apiClearCart, apiGetCart, apiRemoveFromCart, apiUpdateCartQty } from "../Services/cartServices";
+import protectedInstance from "../instance/protectedInstance";
 
   export default function Cart() {
     const { items } = useSelector((state) => state.cart);
@@ -42,6 +43,11 @@
       
       setCheckoutLoading(true);
       try {
+
+        const cartRes = await protectedInstance.get("/cart");
+        console.log("cart response", cartRes);
+        const orderId = cartRes.data?.cart?._id;
+        console.log("orderId", orderId);
         const payloadItems = items.map((i) => ({
           id: i._id ?? i.id,
           name: i.name,
@@ -49,7 +55,7 @@
           price: i.price.toFixed(2),
         }));
 
-        const data = await createCheckoutSession(payloadItems,user?._id);
+        const data = await createCheckoutSession(payloadItems,user?._id,orderId);
         console.log("checkout response", data);
 
         if (data.url) {

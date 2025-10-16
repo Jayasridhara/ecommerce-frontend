@@ -4,9 +4,10 @@ import { Link, useNavigate, useLocation } from "react-router";
 import { ShoppingCart, Search, PlusCircle, Home as HomeIcon,Heart  } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearUser, setIsSeller } from "../redux/authSlice";
-import { clearCart } from "../redux/cartSlice";
+import { clearCart, fetchCart, setCart } from "../redux/cartSlice";
 import { clearWishlist, fetchWishlist } from "../redux/wishlistSlice"; // <-- added
 import defaultImage from "../assets/avatar-character.jpg";  
+import { apiGetCart } from "../Services/cartServices";
 export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -19,9 +20,10 @@ export default function Navbar() {
 
   const { isAuthenticated, user, isSeller, token } = useSelector((state) => state.auth);
   const cartCount = useSelector((state) =>
-    state.cart.items.reduce((sum, item) => sum + item.qty, 0)
-  );
-
+    state.cart.items.length ? state.cart.items.length : state.cart.items.reduce((total, item) => total + item.qty, 0
+  ));
+  console.log(isAuthenticated);
+  // console.log(useSelector((state) => state.cart));
   // compute wishlist count robustly (flatten and ignore falsy)
   const wishlistCount = useSelector((state) => {
     const items = state.wishlist.items || [];
@@ -37,7 +39,7 @@ export default function Navbar() {
     // fetch wishlist whenever user logs in or user id changes
     if (isAuthenticated && user?.id) {
       dispatch(fetchWishlist({ userId: user.id }));
-
+        
     } else {
       // clear local wishlist when logged out
       // optional: dispatch(clearWishlist());
@@ -45,7 +47,15 @@ export default function Navbar() {
     }
   }, [isAuthenticated, user?.id, token, dispatch]);
 
-  useEffect(() => {
+    useEffect(() => {
+      console.log("Auth or user changed, fetching cart...");
+      if (isAuthenticated) dispatch(fetchCart());
+     
+      else dispatch(clearCart());
+       console.log("cartcount",cartCount);
+    }, [isAuthenticated, user?.id, token,cartCount]);
+
+    useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setProfileOpen(false);

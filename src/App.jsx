@@ -19,6 +19,7 @@ import store from "./redux/store";
 import AppLayout from "./components/AppLayout";
 import authLoader from "./loader/authLoader";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
+import MyOrder from "./pages/MyOrder";
 
 const routes = [
   {
@@ -68,6 +69,10 @@ const routes = [
       {
         path: "profile",
         element: <Profile />,
+      },
+      {
+        path: "orders",
+        element: <MyOrder />,
       },
       {
         path: "seller",

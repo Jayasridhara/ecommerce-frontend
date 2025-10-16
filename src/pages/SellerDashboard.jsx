@@ -134,7 +134,7 @@ export default function SellerDashboard() {
         <h1 className="text-2xl font-bold text-blue-600 tracking-tight">
           🛍️ Seller Dashboard
         </h1>
-        <button
+        <button type="button"
           onClick={() => {
             setIsModalOpen(true);
             setEditingProduct(null);

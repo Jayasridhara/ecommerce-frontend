@@ -24,3 +24,4 @@ export async function apiClearCart() {
   const res = await protectedInstance.post('/cart/clear');
   return res.data; // { cart }
 }
+
