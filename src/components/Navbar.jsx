@@ -8,6 +8,7 @@ import { clearCart, fetchCart, setCart } from "../redux/cartSlice";
 import { clearWishlist, fetchWishlist } from "../redux/wishlistSlice"; // <-- added
 import defaultImage from "../assets/avatar-character.jpg";  
 import { apiGetCart } from "../Services/cartServices";
+import { getMyOrders } from "../Services/orderServices";
 export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -17,14 +18,20 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-
+//Cart Count
   const { isAuthenticated, user, isSeller, token } = useSelector((state) => state.auth);
   const cartCount = useSelector((state) =>
     state.cart.items.length ? state.cart.items.length : state.cart.items.reduce((total, item) => total + item.qty, 0
   ));
-  console.log(isAuthenticated);
-  // console.log(useSelector((state) => state.cart));
-  // compute wishlist count robustly (flatten and ignore falsy)
+    useEffect(() => {
+      console.log("Auth or user changed, fetching cart...");
+      if (isAuthenticated) dispatch(fetchCart());
+     
+      else dispatch(clearCart());
+       console.log("cartcount",cartCount);
+    }, [isAuthenticated, user?.id, token,cartCount]);
+//Cart Count Ends Here
+//Wishlist Count
   const wishlistCount = useSelector((state) => {
     const items = state.wishlist.items || [];
     const flat = items.reduce((acc, cur) => {
@@ -41,20 +48,12 @@ export default function Navbar() {
       dispatch(fetchWishlist({ userId: user.id }));
         
     } else {
-      // clear local wishlist when logged out
-      // optional: dispatch(clearWishlist());
-      
+       dispatch(clearWishlist());  
     }
-  }, [isAuthenticated, user?.id, token, dispatch]);
+  }, [isAuthenticated, user?.id, token, dispatch]); 
+//Wishlist Count Ends Here
 
-    useEffect(() => {
-      console.log("Auth or user changed, fetching cart...");
-      if (isAuthenticated) dispatch(fetchCart());
-     
-      else dispatch(clearCart());
-       console.log("cartcount",cartCount);
-    }, [isAuthenticated, user?.id, token,cartCount]);
-
+// Close profile dropdown on outside click
     useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -64,7 +63,7 @@ export default function Navbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
+// Logout handler
   const handleLogout = () => {
   dispatch(clearUser());
   dispatch(setIsSeller(false));
@@ -77,7 +76,23 @@ export default function Navbar() {
     navigate("/");
   };
 
-  const isSellerPage = location.pathname.startsWith("/seller");
+ const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const data = await getMyOrders();
+        setOrders(data);
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+      } 
+    };
+
+    fetchOrders();
+  }, []);
+  
+// Determine if current page is a seller page
+const isSellerPage = location.pathname.startsWith("/seller");
 
   return (
     <nav className="bg-gradient-to-br from-purple-900 via-purple-800 to-black text-white shadow-lg sticky top-0 z-50">
@@ -127,13 +142,25 @@ export default function Navbar() {
               <span>New Product</span>
             </button>
           )}
-          {isAuthenticated && location.pathname !== "/orders" && (
-            <Link
-              to="/orders"
-              className="text-decoration-none gap-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold px-5 py-2 shadow-lg border border-white/30 hover:from-pink-400 hover:to-purple-500 transition-all duration-200 hover:scale-105 text-sm"
-            >
-              My Orders
-            </Link>
+          {isAuthenticated && location.pathname !== "/orders" &&(
+             orders.length > 0 ? (
+              <Link
+                to="/orders"
+                className={`text-decoration-none gap-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold px-5 py-2 shadow-lg border border-white/30 hover:from-pink-400 hover:to-purple-500 transition-all duration-200 hover:scale-105 text-sm ${
+                  location.pathname === "/orders" ? "opacity-60 pointer-events-none" : ""
+                }`}
+              >
+                My Orders
+              </Link>
+            ) : (
+              <button
+                disabled
+                title="You have no orders yet"
+                className="gap-2 bg-gray-400 text-white font-bold px-5 py-2 rounded-full shadow-md opacity-60 cursor-not-allowed text-sm"
+              >
+                My Orders
+              </button>
+            )
           )}
           {!isSellerPage && (
               wishlistCount > 0 ? (
