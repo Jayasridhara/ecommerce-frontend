@@ -57,7 +57,7 @@ const ResetPassword = () => {
         }
 
         try {
-            const res = await instance.post(`${API_URL}/auth/resetpassword/${token}`, { password });
+            const res = await instance.post(`/auth/resetpassword/${token}`, { password });
             setMessage(res.data.message);
             setPassword('');
             setConfirmPassword('');
