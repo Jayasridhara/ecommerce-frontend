@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { useState } from 'react';
-const API_URL = "http://localhost:5000/api/v1/auth";
-
+import instance from '../instance/instance';
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
@@ -15,7 +14,7 @@ const ForgotPassword = () => {
         setError('');
 
         try {
-            const res = await axios.post(`${API_URL}/forgotpassword`, { email });
+            const res = await instance.post(`auth/forgotpassword`, { email });
             console.log(res)
             setMessage(res.data.message);
             console.log(message)

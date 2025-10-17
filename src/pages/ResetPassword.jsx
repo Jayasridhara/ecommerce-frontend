@@ -5,9 +5,9 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import instance from '../instance/instance';
 
 
-const API_URL = "http://localhost:5000/api/v1/auth";
 
 const ResetPassword = () => {
     const { token } = useParams();
@@ -57,7 +57,7 @@ const ResetPassword = () => {
         }
 
         try {
-            const res = await axios.post(`${API_URL}/resetpassword/${token}`, { password });
+            const res = await instance.post(`${API_URL}/auth/resetpassword/${token}`, { password });
             setMessage(res.data.message);
             setPassword('');
             setConfirmPassword('');
