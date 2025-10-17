@@ -167,11 +167,7 @@ function ProfilePage() {
     }
   };
 
-  const handleDelete = () => {
-    setAlertAction("delete");
-    setAlertMessage("Are you sure you want to delete your account? This action cannot be undone.");
-    setAlertModalOpen(true);
-  };
+
 
   const handleRefresh = () => {
     setAlertAction("refresh");
@@ -181,43 +177,7 @@ function ProfilePage() {
 
   const handleModalConfirm = async () => {
     setAlertModalOpen(false);
-    if (alertAction === "delete") {
-      try {
-        const res = await deleteProfile();
-        toast.success(res.message || "Profile deleted successfully");
-        dispatch(clearUser());
-        setForm({
-          name: '',
-          phone: '',
-          location: '',
-          profilePicture: '',
-          shippingAddress: {
-            fullName: '',
-            addressLine1: '',
-            addressLine2: '',
-            city: '',
-            state: '',
-            postalCode: '',
-            country: '',
-            phone: '',
-          },
-          shopName: '',
-          shopAddress: {
-            fullName: '',
-            addressLine1: '',
-            addressLine2: '',
-            city: '',
-            state: '',
-            postalCode: '',
-            country: '',
-            phone: '',
-          },
-        });
-        navigate('/');
-      } catch (err) {
-        toast.error(err.response?.data?.message || "Failed to delete profile");
-      }
-    } else if (alertAction === "refresh") {
+   if (alertAction === "refresh") {
       setForm({
         name: '',
         phone: '',
@@ -329,17 +289,6 @@ function ProfilePage() {
                 />
                 {errors.location && <p className="text-red-600 text-sm">{errors.location}</p>}
               </div>
-
-              <div>
-                <label className="block mb-1 font-medium text-gray-700">Profile Picture URL</label>
-                <input
-                  name="profilePicture"
-                  value={form.profilePicture}
-                  onChange={handleChange}
-                  className="w-full border rounded px-3 py-2"
-                />
-              </div>
-
               {/* Shipping Address */}
               <hr className="my-4" />
               <h3 className="text-lg font-semibold">Shipping Address</h3>
@@ -415,13 +364,6 @@ function ProfilePage() {
                   Refresh
                 </button>
                 <button
-                  type="button"
-                  onClick={handleDelete}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md"
-                >
-                  Delete
-                </button>
-                <button
                   type="submit"
                   disabled={isLoading}
                   className={`px-6 py-2 font-semibold rounded-md text-white ${
@@ -438,9 +380,7 @@ function ProfilePage() {
 
       <AlertModal
         show={alertModalOpen}
-        onClose={handleModalClose}
-        onConfirm={handleModalConfirm}
-        cancelText="Cancel"
+        onClose={handleModalConfirm}
       >
         {alertMessage}
       </AlertModal>

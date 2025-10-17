@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { FiTruck, FiClock, FiCheckCircle } from 'react-icons/fi';
 import protectedInstance from '../instance/protectedInstance';
+import Navbar from '../components/Navbar';
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
@@ -48,7 +49,8 @@ export default function MyOrders() {
 
   if (!orders.length) {
     return (
-      <div className="min-h-screen p-8">
+      <div className="min-h-screen ">
+        <Navbar/>
         <h2 className="text-2xl font-semibold mb-4">My Orders</h2>
         <div className="text-gray-500">You have no completed orders yet.</div>
       </div>
@@ -56,7 +58,8 @@ export default function MyOrders() {
   }
 
   return (
-    <div className="min-h-screen p-6 bg-gray-50">
+    <div className="min-h-screen  bg-gray-50">
+      <Navbar/>
       <h2 className="text-3xl font-bold mb-6">My Orders</h2>
 
       <div className="space-y-6 max-w-5xl mx-auto">

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-// import { useSearchParams, useNavigate } from "react-router-dom";
 import protectedInstance from "../instance/protectedInstance";
 import { useNavigate, useSearchParams } from "react-router";
 

@@ -11,29 +11,67 @@ export default function ProductFormModal({
 }) {
   if (!isOpen) return null;
 
+  // Generic field handler
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Image handler with preview
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const validTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!validTypes.includes(file.type)) {
+        alert("Please upload a valid image (JPEG, PNG, or WEBP).");
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Image size must be under 2MB.");
+        return;
+      }
       const previewUrl = URL.createObjectURL(file);
       setFormData((prev) => ({ ...prev, imageFile: file, image: previewUrl }));
     }
   };
 
+  // ✅ Strong Validation for all fields
+  const validateForm = () => {
+    const {
+      name,
+      price,
+      color,
+      productType,
+      productTypeOther,
+      description,
+      image,
+      stock,
+      salesCount,
+    } = formData;
+
+    if (!name.trim()) return "Product name is required.";
+    if (!price || Number(price) <= 0)
+      return "Price must be a positive number.";
+    if (!color.trim()) return "Color is required.";
+    if (!productType) return "Select a product type.";
+    if (productType === "Other" && !productTypeOther.trim())
+      return "Please enter a custom product type.";
+    if (!description.trim()) return "Description cannot be empty.";
+    if (!image) return "Product image is required.";
+    if (stock === "" || Number(stock) < 0)
+      return "Stock must be 0 or a positive number.";
+   
+
+    return null; // no error
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Basic validation
-    if (!formData.name.trim()) return alert("Product name is required");
-    if (!formData.price || formData.price <= 0)
-      return alert("Price must be greater than 0");
-    if (!formData.productType) return alert("Select a product type");
-    if (formData.productType === "Other" && !formData.productTypeOther.trim())
-      return alert("Enter other type name");
-
+    const error = validateForm();
+    if (error) {
+      alert(error);
+      return;
+    }
     onSubmit();
   };
 
@@ -55,9 +93,9 @@ export default function ProductFormModal({
           onSubmit={handleSubmit}
           className="p-6 space-y-5 max-h-[75vh] overflow-y-auto"
         >
-          {/* Name */}
+          {/* Product Name */}
           <div>
-            <label className="block font-medium mb-1">Product Name</label>
+            <label className="block font-medium mb-1">Product Name *</label>
             <input
               name="name"
               placeholder="Enter product name"
@@ -71,7 +109,7 @@ export default function ProductFormModal({
           {/* Price & Color */}
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="block font-medium mb-1">Price ($)</label>
+              <label className="block font-medium mb-1">Price ($) *</label>
               <input
                 name="price"
                 type="number"
@@ -84,20 +122,21 @@ export default function ProductFormModal({
               />
             </div>
             <div className="flex-1">
-              <label className="block font-medium mb-1">Color</label>
+              <label className="block font-medium mb-1">Color *</label>
               <input
                 name="color"
                 placeholder="Enter color"
                 value={formData.color}
                 onChange={handleChange}
                 className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                required
               />
             </div>
           </div>
 
           {/* Product Type */}
           <div>
-            <label className="block font-medium mb-1">Product Type</label>
+            <label className="block font-medium mb-1">Product Type *</label>
             <select
               name="productType"
               value={formData.productType}
@@ -105,42 +144,43 @@ export default function ProductFormModal({
               className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
               required
             >
-              <option value="">Select type</option>
-              <option>Home Accessories</option>
-              <option>Men's Dress</option>
-              <option>Women's Dress</option>
-              <option>Other</option>
+              <option value="Home Accessories">Home Accessories</option>
+              <option value="Men's Dress">Men's Dress</option>
+              <option value="Women's Dress">Women's Dress</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 
           {formData.productType === "Other" && (
             <div>
-              <label className="block font-medium mb-1">Other Type</label>
+              <label className="block font-medium mb-1">Other Type *</label>
               <input
                 name="productTypeOther"
-                placeholder="Enter other type"
+                placeholder="Enter custom category"
                 value={formData.productTypeOther}
                 onChange={handleChange}
                 className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                required
               />
             </div>
           )}
 
           {/* Description */}
           <div>
-            <label className="block font-medium mb-1">Description</label>
+            <label className="block font-medium mb-1">Description *</label>
             <textarea
               name="description"
               placeholder="Enter description"
               value={formData.description}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none h-24 resize-none"
+              required
             />
           </div>
 
-          {/* Image */}
+          {/* Image Upload */}
           <div>
-            <label className="block font-medium mb-1">Product Image</label>
+            <label className="block font-medium mb-1">Product Image *</label>
             <input
               name="imageFile"
               type="file"
@@ -157,32 +197,22 @@ export default function ProductFormModal({
             )}
           </div>
 
-          {/* Stock & Sell Count */}
+          {/* Stock & Sales Count */}
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="block font-medium mb-1">Stock</label>
+              <label className="block font-medium mb-1">Stock *</label>
               <input
                 name="stock"
                 type="number"
-                placeholder="Enter stock"
+                placeholder="Enter stock quantity"
                 value={formData.stock ?? ""}
                 onChange={handleChange}
                 className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                required
                 min={0}
               />
             </div>
-            <div className="flex-1">
-              <label className="block font-medium mb-1">Sold Count</label>
-              <input
-                name="salesCount"
-                type="number"
-                placeholder="Enter sold count"
-                value={formData.salesCount ?? ""}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
-                min={0}
-              />
-            </div>
+            
           </div>
 
           {/* Buttons */}

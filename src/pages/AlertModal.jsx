@@ -1,7 +1,7 @@
 import { AnimatePresence, motion,  } from "framer-motion";
 
 
-export default function AlertModal({ show, onClose, onConfirm, children, cancelText = "OK" }) {
+export default function AlertModal({ show, onClose, children, cancelText = "OK" }) {
   if (!show) return null;
 
   return (
@@ -23,12 +23,7 @@ export default function AlertModal({ show, onClose, onConfirm, children, cancelT
           <p className="text-gray-600 mb-6">{children}</p>
 
           <div className="flex justify-center gap-4">
-            <button
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-              onClick={onConfirm}  // triggers handleModalConfirm
-            >
-              Confirm
-            </button>
+            
             <button
               onClick={onClose}
               className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-6 py-2 rounded-lg font-semibold hover:scale-105 transition"

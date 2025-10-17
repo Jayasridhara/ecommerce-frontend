@@ -127,7 +127,14 @@ export default function Navbar() {
               <span>New Product</span>
             </button>
           )}
-
+          {isAuthenticated && location.pathname !== "/orders" && (
+            <Link
+              to="/orders"
+              className="text-decoration-none gap-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold px-5 py-2 shadow-lg border border-white/30 hover:from-pink-400 hover:to-purple-500 transition-all duration-200 hover:scale-105 text-sm"
+            >
+              My Orders
+            </Link>
+          )}
           {!isSellerPage && (
               wishlistCount > 0 ? (
                 location.pathname.startsWith("/wishlist") ? (
@@ -156,7 +163,7 @@ export default function Navbar() {
                 >
                   <Heart className="w-6 h-6 text-pink-300" />
                 </div>
-              )
+              ) 
             )}
 
             {/* Cart */}
@@ -201,6 +208,7 @@ export default function Navbar() {
               </Link>
             </>
           ) : (
+            
             <div className="relative" ref={profileRef}>
               <button
                 className="flex items-center gap-2 focus:outline-none"
@@ -256,6 +264,7 @@ export default function Navbar() {
                 </div>
               )}
             </div>
+            
           )}
         </div>
 

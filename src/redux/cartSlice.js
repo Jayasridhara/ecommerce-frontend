@@ -41,6 +41,13 @@ const cartSlice = createSlice({
           image: p.image ?? ci.image,
           price: Number(ci.price ?? p.price ?? 0),
           qty: Number(ci.qty ?? 0),
+          stock: Number(ci.stock ?? p.stock ?? 0),
+          salesCount: Number(ci.salesCount ?? p.salesCount ?? 0),
+          seller: ci.seller || (p.seller ? {  
+            id: p.seller._id ?? p.seller.id ?? String(p.seller),
+            name: p.seller.name,
+            email: p.seller.email,
+          } : { id: null, name: "Unknown", email: ""})
         };
       });
     },
@@ -51,7 +58,6 @@ export const fetchCart = createAsyncThunk("cart/fetchCart", async (_, { dispatch
   const { cart } = await apiGetCart();
   console.log("Fetched cart:", cart);
   dispatch(setCart(cart));
-  
   return cart.items;
 });
 

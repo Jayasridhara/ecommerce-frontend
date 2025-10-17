@@ -19,7 +19,7 @@ import protectedInstance from "../instance/protectedInstance";
     const navigate = useNavigate();
     const [showAlert, setShowAlert] = useState(false);
     const [checkoutLoading, setCheckoutLoading] = useState(false);
-
+    console.log("items",items)
     // 👇 Watch for when cart becomes empty
     useEffect(() => {
       if (items.length === 0) {
@@ -32,12 +32,13 @@ import protectedInstance from "../instance/protectedInstance";
         try {
           const res = await apiGetCart();
           dispatch(setCart(res.cart));
+
         } catch (err) {
           console.error("fetch cart failed", err);
         }
       })();
     }, [dispatch]);
-
+    
     const handleCheckout = async () => {
       if (items.length === 0) return;
       
@@ -47,12 +48,17 @@ import protectedInstance from "../instance/protectedInstance";
         const cartRes = await protectedInstance.get("/cart");
         console.log("cart response", cartRes);
         const orderId = cartRes.data?.cart?._id;
-        console.log("orderId", orderId);
         const payloadItems = items.map((i) => ({
           id: i._id ?? i.id,
           name: i.name,
+          image: i.image,
           qty: i.qty || 1,
           price: i.price.toFixed(2),
+          seller:{
+          id: i.seller?.id || null,
+          name: i.seller?.name || null,
+          email: i.seller?.email || null, 
+          }      
         }));
 
         const data = await createCheckoutSession(payloadItems,user?._id,orderId);
