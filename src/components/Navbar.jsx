@@ -34,7 +34,7 @@ export default function Navbar() {
     }, []);
     return flat.length;
   });
-
+ console.log("Wishlist count:", user);
   useEffect(() => {
     // fetch wishlist whenever user logs in or user id changes
     if (isAuthenticated && user?.id) {

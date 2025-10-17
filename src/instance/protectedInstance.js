@@ -12,6 +12,17 @@ const protectedInstance = axios.create({
   withCredentials: true, // use cookies (httpOnly token set by backend)
 });
 
+protectedInstance.interceptors.request.use(
+  (config) => { 
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;  
+  }
+    return config;
+  }
+
+);
+    // You can modify the request config here if needed   
 // No Authorization header attached here because token is stored in cookie (httpOnly)
 
 // on auth errors, inform the app to clear auth state and redirect

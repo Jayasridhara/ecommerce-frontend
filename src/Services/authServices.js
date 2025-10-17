@@ -24,7 +24,7 @@ export const profile = async () => {
 };
 
 export const logoutUser = async () => {
-    const response = await protectedInstance.post("/auth/logout", { withCredentials: true });
+    const response = await protectedInstance.post("/auth/logout",{}, { withCredentials: true });
     return response.data;
 };
 
