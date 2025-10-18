@@ -31,12 +31,12 @@ const cartSlice = createSlice({
       state.items = [];
     },
     setCart: (state, action) => {
-      const cart = action.payload || {};
-      state.items = (cart.cartItems || []).map((ci) => {
+      const cart = action.payload || [];
+      state.items = (cart || []).map((ci) => {
         const p = ci.product || {};
         return {
-          id: p._id ?? p.id ?? String(ci.product),
-          _id: p._id ?? p.id ?? String(ci.product),
+          id: p._id ?? p.id ?? String(ci.productId),
+          _id: p._id ?? p.id ?? String(ci.productId),
           name: p.name ?? ci.name,
           image: p.image ?? ci.image,
           price: Number(ci.price ?? p.price ?? 0),

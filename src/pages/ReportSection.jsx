@@ -17,7 +17,7 @@ export default function ReportSection({ onClose }) {
     try {
       const res = await getSellerReports();
       const orders = res.orders || [];
-      const succeeded = orders.filter((o) => o.status === "succeeded");
+      const succeeded = orders.filter((o) => o.status === "paid");
       setReports(succeeded);
     } catch (err) {
       console.error("Error loading reports:", err);

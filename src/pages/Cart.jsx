@@ -105,7 +105,7 @@ import protectedInstance from "../instance/protectedInstance";
     const handleUpdateQty = async (productId, newQty) => {
       try {
         const res = await apiUpdateCartQty(productId, newQty);
-        dispatch(setCart(res.cart));
+        dispatch(setCart(res.cart.cartItems));
       } catch (err) {
         console.error("Update qty failed", err);
       }
@@ -114,7 +114,7 @@ import protectedInstance from "../instance/protectedInstance";
     const handleRemove = async (productId) => {
       try {
         const res = await apiRemoveFromCart(productId);
-        dispatch(setCart(res.cart));
+       dispatch(setCart(res.cart.cartItems));
       } catch (err) {
         console.error("Remove from cart failed", err);
       }

@@ -159,7 +159,7 @@ export default function Home() {
                     if (!isAuthenticated) return navigate('/login');
                     try {
                       const resp = await apiAddToCart(product._id ?? product.id, 1);
-                      dispatch(setCart(resp.cart));
+                      dispatch(setCart(resp.cart.cartItems));
                       dispatch(fetchCart()); 
                     } catch (err) {
                       console.error('add to cart failed', err);
