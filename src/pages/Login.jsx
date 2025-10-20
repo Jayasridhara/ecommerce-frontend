@@ -21,7 +21,6 @@ const Login = () => {
     try {
       const response = await loginUser(formData);
       dispatch(setUser(response.user));
-      console.log("Login Response:", response);
       localStorage.setItem("token", response.token);
       if (response.user.role !== "buyer") {
         dispatch(setIsSeller(true));

@@ -58,6 +58,7 @@ import protectedInstance from "../instance/protectedInstance";
           id: i.seller?.id || null,
           name: i.seller?.name || null,
           email: i.seller?.email || null, 
+          status: i.seller?.status || 'cart',
           }      
         }));
 

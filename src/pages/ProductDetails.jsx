@@ -143,10 +143,12 @@ console.log("Is in wishlist:", isInWishlist);
           <p className="text-gray-700 mb-2">
             <span className="text-purple-700">Color:</span> {product.color}
           </p>
-          <p className="text-gray-700 mb-4">
+          <p className="text-gray-700 mb-2">
             <span className="text-purple-700">Category:</span> {product.productType}
           </p>
-
+          <p className="text-gray-700 mb-4">
+            <span className="text-purple-700">In Stock:</span> {product.stock || 0}
+          </p> 
           <p className="text-gray-700 mb-6 leading-relaxed">
             {product.description ||
               "This product blends modern design with top performance."}

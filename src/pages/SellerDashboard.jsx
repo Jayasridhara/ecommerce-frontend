@@ -38,7 +38,6 @@ export default function SellerDashboard() {
     salesCount: 0,
   });
   const [editingProduct, setEditingProduct] = useState(null);
-
   const [showReport, setShowReport] = useState(false);
 
   useEffect(() => {
@@ -118,7 +117,7 @@ export default function SellerDashboard() {
   };
 
   const handleDelete = async (id) => {
-    if (confirm("Are you sure to delete this product?")) {
+    if (window.confirm("Are you sure to delete this product?")) {
       await deleteProducts(id);
       await loadProducts();
     }
@@ -144,15 +143,15 @@ export default function SellerDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 text-gray-800">
       <Navbar />
-      <header className="bg-white shadow-md py-2 px-8 flex items-center justify-between sticky top-0 z-10 border-b">
-        <h1 className="text-xl font-bold text-blue-600 tracking-tight">
+      <header className="bg-white shadow-md py-2 px-4 sm:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between sticky top-0 z-10 border-b">
+        <h1 className="text-xl font-bold text-blue-600 tracking-tight mb-2 sm:mb-0">
           🛍️ Seller Dashboard
         </h1>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setShowReport((prev) => !prev)}
-            className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 shadow transition"
+            className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 shadow transition"
           >
             📊 Reports
           </button>
@@ -162,19 +161,19 @@ export default function SellerDashboard() {
               setIsModalOpen(true);
               setEditingProduct(null);
             }}
-            className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow transition"
+            className="flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow transition"
           >
             <PlusCircle className="mr-2" size={18} /> Add Product
           </button>
         </div>
       </header>
 
-      <div className="bg-white shadow-sm mx-8 mt-6 rounded-xl p-4 flex flex-wrap justify-between items-center gap-4">
-        <div className="flex items-center gap-2 text-gray-600 font-medium">
+      <div className="bg-white shadow-sm mx-4 sm:mx-8 mt-6 rounded-xl p-4 flex flex-col sm:flex-row flex-wrap justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-2 text-gray-600 font-medium w-full sm:w-auto">
           <SlidersHorizontal size={18} />
           Filters
           <button
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow transition"
+            className="ml-auto sm:ml-0 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow transition"
             onClick={() => {
               setFilters({
                 type: "",
@@ -193,7 +192,7 @@ export default function SellerDashboard() {
           name="type"
           value={filters.type}
           onChange={handleFilterChange}
-          className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-300"
+          className="w-full sm:w-auto border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-300"
         >
           <option value="">All Types</option>
           {availableFilters.types.map((t, i) => (
@@ -207,7 +206,7 @@ export default function SellerDashboard() {
           name="color"
           value={filters.color}
           onChange={handleFilterChange}
-          className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-300"
+          className="w-full sm:w-auto border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-300"
         >
           <option value="">All Colors</option>
           {availableFilters.colors.map((c, i) => (
@@ -217,14 +216,14 @@ export default function SellerDashboard() {
           ))}
         </select>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <input
             type="number"
             name="minPrice"
             placeholder="Min"
             value={filters.minPrice || ""}
             onChange={handleFilterChange}
-            className="w-20 border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-300"
+            className="w-full sm:w-20 border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-300"
           />
           <span>-</span>
           <input
@@ -233,12 +232,12 @@ export default function SellerDashboard() {
             placeholder="Max"
             value={filters.maxPrice || ""}
             onChange={handleFilterChange}
-            className="w-20 border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-300"
+            className="w-full sm:w-20 border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-300"
           />
         </div>
       </div>
 
-      <div className="px-8 py-8">
+      <div className="px-4 sm:px-8 py-8">
         {showReport ? (
           <ReportSection onClose={() => setShowReport(false)} />
         ) : (
@@ -249,9 +248,12 @@ export default function SellerDashboard() {
                   key={prod._id}
                   className="bg-white rounded-xl shadow-md hover:shadow-lg transition-transform duration-300 hover:-translate-y-1 overflow-hidden"
                 >
-                  <div className="relative h-40 bg-gray-100">
+                  <div className="relative h-32 sm:h-40 bg-gray-100">
                     <img
-                      src={prod.image || "https://via.placeholder.com/300x200?text=No+Image"}
+                      src={
+                        prod.image ||
+                        "https://via.placeholder.com/300x200?text=No+Image"
+                      }
                       alt={prod.name}
                       className="w-full h-full object-cover"
                     />
@@ -268,8 +270,7 @@ export default function SellerDashboard() {
                             description: prod.description,
                             image: prod.image,
                             imageFile: null,
-                            stock: prod.stock || 0,
-                            salesCount: prod.salesCount || 0,
+                            stock: prod.stock || 0,            
                           });
                           setIsModalOpen(true);
                         }}
@@ -285,12 +286,14 @@ export default function SellerDashboard() {
                       </button>
                     </div>
                   </div>
-                  <div className="p-4">
-                    <h2 className="font-semibold text-lg text-gray-800 truncate">
+                  <div className="p-3 sm:p-4">
+                    <h2 className="font-semibold text-base sm:text-lg text-gray-800 truncate">
                       {prod.name}
                     </h2>
                     <div className="flex justify-between items-center mt-1">
-                      <p className="text-sm text-gray-500">{prod.productType}</p>
+                      <p className="text-sm text-gray-500">
+                        {prod.productType}
+                      </p>
                       {prod.color && (
                         <div className="flex items-center space-x-1">
                           <span className="text-xs text-gray-500">Color:</span>
@@ -305,9 +308,15 @@ export default function SellerDashboard() {
                     <p className="text-blue-600 font-bold text-base mt-2">
                       ${prod.price}
                     </p>
-                    <p className="text-gray-500 text-sm mt-1">
-                      Stock: {prod.stock} 
-                    </p>
+                    
+                    <div className="flex justify-between mt-2">
+                      <p className="text-gray-500 text-sm mt-1">
+                        Stock: {prod.stock}
+                      </p>
+                      <p className="text-gray-500 text-sm">
+                        Sales: {prod.salesCount}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ))

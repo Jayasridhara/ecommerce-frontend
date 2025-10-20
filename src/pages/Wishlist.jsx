@@ -1,5 +1,5 @@
 import { removeFromWishlist } from "../redux/wishlistSlice";
-import { addToCart } from "../redux/cartSlice";
+import { addToCart, fetchCart, setCart } from "../redux/cartSlice";
 
 import { Trash2, ShoppingCart } from "lucide-react";
 
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import AlertModal from "./AlertModal";
+import { apiAddToCart } from "../Services/cartServices";
 
 export default function Wishlist() {
   const items = useSelector((state) => state.wishlist.items || []);
@@ -35,7 +36,7 @@ export default function Wishlist() {
     navigate("/");
   };
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-black text-white">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-white text-gray-800 font-sans"> 
       <Navbar />
       <div className="max-w-6xl mx-auto px-6 py-10">
         <h1 className="text-3xl font-bold text-center mb-10 text-pink-400">
@@ -49,7 +50,7 @@ export default function Wishlist() {
             {items.map((p) => (
               <div
                 key={p._id}
-                className="bg-purple-800/70 p-4 rounded-xl shadow-md text-center hover:shadow-purple-600 transition"
+                className="bg-white p-4 rounded-lg shadow hover:shadow-md  duration-200 transition"
               >
                 <img
                   src={p.image}
@@ -61,7 +62,17 @@ export default function Wishlist() {
                 <p className="text-gray-300">${p.price || 'N/A'}</p>
                 <div className="flex justify-center gap-3 mt-3">
                   <button
-                    onClick={() => dispatch(addToCart(p))}
+                     onClick={async (e) => {
+                        e.stopPropagation();
+                        if (!isAuthenticated) return navigate('/login');
+                        try {
+                          const resp = await apiAddToCart(p._id ?? p.id, 1);
+                          dispatch(setCart(resp.cart.cartItems));
+                          dispatch(fetchCart()); 
+                        } catch (err) {
+                          console.error('add to cart failed', err);
+                        }
+                      }}
                     className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-1"
                   >
                     <ShoppingCart className="w-4 h-4" /> Add

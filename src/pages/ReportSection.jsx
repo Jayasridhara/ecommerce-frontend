@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { getSellerReports } from "../Services/orderServices";
+import { getSellerReports, updateOrderStatusBySeller } from "../Services/orderServices";
 
 export default function ReportSection({ onClose }) {
   const [reports, setReports] = useState([]);
@@ -26,6 +26,24 @@ export default function ReportSection({ onClose }) {
       setLoading(false);
     }
   };
+
+const handleStatusUpdate=async(orderId,newStatus)=>{
+  try{
+    console.log("Updating order:",orderId,"to status:",newStatus);
+    setLoading(true);
+    const res=await updateOrderStatusBySeller(orderId,newStatus);
+    
+    console.log("Status update response:",res);
+    //refresh reports
+    loadReports();
+  }catch(err){
+    console.error("Failed to update order status:",err);
+  }finally{
+    setLoading(false);
+  }
+}
+
+
 
   return (
     <div className="bg-white shadow-md rounded-xl p-6 mb-8">
@@ -58,6 +76,7 @@ export default function ReportSection({ onClose }) {
                 <th className="py-2 px-4 text-left">Buyer Name</th>
                 <th className="py-2 px-4 text-left">Amount</th>
                 <th className="py-2 px-4 text-left">Status</th>
+                <th className="py-2 px-4 text-left">Change Status</th>
                 <th className="py-2 px-4 text-left">Date</th>
               </tr>
             </thead>
@@ -77,11 +96,20 @@ export default function ReportSection({ onClose }) {
                         className="w-12 h-12 object-cover rounded"
                       />
                     </td>
-                    <td className="py-2 px-4">{order.buyerName}</td>
+                    <td className="py-2 px-4">{order.buyer.name}</td>
                     <td className="py-2 px-4">${order.totalAmount}</td>
                     <td className="py-2 px-4 text-green-600 font-medium">
-                      {order.status}
+                      {item.status}
                     </td>
+                    <td className="py-2 px-4">
+                      <select value={item.status} onChange={(e)=>handleStatusUpdate(order._id,e.target.value)} className="border border-gray-300 rounded px-2 py-1">
+                        <option value="pending">Pending</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                       
+                      </select>
+                    </td>
+
                     <td className="py-2 px-4">
                       {new Date(order.createdAt).toLocaleString()}
                     </td>

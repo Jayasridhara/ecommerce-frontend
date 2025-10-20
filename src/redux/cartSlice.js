@@ -47,7 +47,8 @@ const cartSlice = createSlice({
             id: p.seller._id ?? p.seller.id ?? String(p.seller),
             name: p.seller.name,
             email: p.seller.email,
-          } : { id: null, name: "Unknown", email: ""})
+          } : { id: null, name: "Unknown", email: ""}),
+          status: ci.seller?.status || 'cart',
         };
       });
     },
