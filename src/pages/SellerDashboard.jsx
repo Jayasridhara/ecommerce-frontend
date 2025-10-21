@@ -341,9 +341,13 @@ const checkSellerDetails = async () => {
                     </p>
                     
                     <div className="flex justify-between mt-2">
-                      <p className="text-gray-500 text-sm mt-1">
-                        Stock: {prod.stock}
-                      </p>
+                       <p
+                          className={`text-sm mt-1 font-semibold ${
+                            prod.stock === 0 ? "text-red-600" : "text-gray-500"
+                          }`}
+                        >
+                          Stock: {prod.stock === 0 ? "Out of Stock" : prod.stock}
+                        </p>
                       <p className="text-gray-500 text-sm">
                         Sales: {prod.salesCount}
                       </p>

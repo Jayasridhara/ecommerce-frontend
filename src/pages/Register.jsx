@@ -3,7 +3,7 @@ import { registerUser } from "../Services/authServices";
 import { useState } from "react";
 import { Link, useNavigate,  } from "react-router";
 import { motion } from "framer-motion";
-
+import { ShoppingCart } from "lucide-react";
 const Register = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -18,11 +18,28 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters long");
-      return;
-    }
+        const nameRegex = /^[A-Za-z\s]{5,}$/;
+      if (!nameRegex.test(formData.name)) {
+        toast.error("Name must be at least 5 characters long and contain only letters");
+        return;
+      }
 
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        toast.error("Please enter a valid email address");
+        return;
+      }
+      const password = formData.password;
+      const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+
+      if (!passwordRegex.test(password)) {
+        toast.error(
+          "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character"
+        );
+        return;
+      }
     setLoading(true);
 
     try {
@@ -47,30 +64,13 @@ const Register = () => {
         className="flex items-center gap-4 mb-8 group cursor-pointer select-none"
       >
         <motion.div
-          initial={{ rotate: -20, scale: 0.8, opacity: 0 }}
-          animate={{ rotate: 0, scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 10 }}
-          whileHover={{ scale: 1.1, rotate: 10 }}
-          className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-500 via-fuchsia-500 to-purple-600 flex items-center justify-center shadow-[0_0_25px_rgba(236,72,153,0.6)]"
-        >
-          <motion.span
-            animate={{ y: [0, -3, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-            className="text-white text-2xl font-extrabold tracking-wider drop-shadow-lg"
-          >
-            SV
-          </motion.span>
-          <div className="absolute inset-0 blur-2xl bg-pink-500/30 rounded-2xl -z-10"></div>
-        </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-4xl font-extrabold bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-500 bg-clip-text text-transparent tracking-wide group-hover:scale-105 group-hover:tracking-wider transition-all duration-300"
-        >
-          Shop<span className="text-gray-700">Verse</span>
-        </motion.h1>
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              className="flex items-center gap-2"
+            >
+              <ShoppingCart className="w-6 h-6 text-blue-600" /> {/* Only visible on mobile */}
+              <span className="font-extrabold text-xl text-gray-800">ShopVerse</span>
+            </motion.div>
       </Link>
 
       {/* Register Card */}
@@ -154,7 +154,7 @@ const Register = () => {
             whileTap={{ scale: 0.97 }}
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold rounded-md shadow-md hover:shadow-lg transition duration-200"
+            className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition duration-200"
           >
             {loading ? "Registering..." : "Register"}
           </motion.button>

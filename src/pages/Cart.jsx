@@ -211,9 +211,14 @@ import ShippingAddressModal from "../components/ShippingAddressModal";
                             onClick={async () => {
                               const pid = item.id ?? item._id;
                               const next = (Number(item.qty) || 0) + 1;
+                              console.log("Checking stock:", item.stock, "for product", pid);
+                               if (next > item.stock) {
+                                toast.error("Cannot add more. Stock limit reached! 📦");
+                                return;
+                              }
                               await handleUpdateQty(pid, next);
                             }}
-                            className="bg-gray-100 hover:bg-gray-200 p-2 rounded-full"
+                             className={`bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-700"`}
                           >
                             <Plus className="w-4 h-4 text-gray-700" />
                           </button>

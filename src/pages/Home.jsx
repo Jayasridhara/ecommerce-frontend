@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/Navbar";
 import { useMemo, useState, useEffect } from "react";
 import { useLoaderData, useNavigate } from "react-router";
-
+import { toast } from "react-toastify";
 export default function Home() {
   const products = useLoaderData() || [];
   const [filters, setFilters] = useState({
@@ -177,6 +177,11 @@ export default function Home() {
                   <button
                     onClick={async (e) => {
                       e.stopPropagation();
+                       if (product.stock <=0) {
+                        toast.error("This product is out of stock 🚫");
+                        return;
+                      }
+
                       if (!isAuthenticated) return navigate("/login");
                       try {
                         const resp = await apiAddToCart(product._id ?? product.id, 1);

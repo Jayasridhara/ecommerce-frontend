@@ -1,7 +1,7 @@
 import React from "react";
 import { X } from "lucide-react";
 import ShopDetailsModal from "../components/ShopDetailsModal";
-
+import { toast } from "react-toastify"; 
 export default function ProductFormModal({
   isOpen,
   onClose,
@@ -18,6 +18,7 @@ export default function ProductFormModal({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  console.log("form data",formData)
   // Image handler with preview
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -47,21 +48,22 @@ export default function ProductFormModal({
       description,
       image,
       stock,
-      salesCount,
     } = formData;
 
     if (!name.trim()) return "Product name is required.";
     if (!price || Number(price) <= 0)
       return "Price must be a positive number.";
     if (!color.trim()) return "Color is required.";
-    if (!productType) return "Select a product type.";
+    if (!productType || productType.trim() === "")
+       return "Select a product type.";
     if (productType === "Other" && !productTypeOther.trim())
       return "Please enter a custom product type.";
     if (!description.trim()) return "Description cannot be empty.";
     if (!image) return "Product image is required.";
     if (stock === "" || Number(stock) < 0)
       return "Stock must be 0 or a positive number.";
-   
+    if (Number(stock) < 5)
+    return "Stock should be at least 5 units.";
 
     return null; // no error
   };
@@ -70,9 +72,10 @@ export default function ProductFormModal({
     e.preventDefault();
     const error = validateForm();
     if (error) {
-      alert(error);
+      toast.error(error); 
       return;
     }
+    toast.success(editingProduct ? "Product updated successfully!" : "Product created successfully!");
     onSubmit();
   };
 
@@ -136,21 +139,24 @@ export default function ProductFormModal({
           </div>
 
           {/* Product Type */}
-          <div>
-            <label className="block font-medium mb-1">Product Type *</label>
-            <select
-              name="productType"
-              value={formData.productType}
-              onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
-              required
-            >
-              <option value="Home Accessories">Home Accessories</option>
-              <option value="Men's Dress">Men's Dress</option>
-              <option value="Women's Dress">Women's Dress</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
+          <div className="flex flex-col">
+          <label className="block font-medium mb-2 text-gray-700">
+            Product Type *
+          </label>
+          <select
+            name="productType"
+            value={formData.productType}
+            onChange={handleChange}
+            className="w-full border rounded-lg px-3 py-2 bg-white text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none appearance-none"
+            required
+          >
+            <option value="">Select a product type</option>
+            <option value="Home Accessories">Home Accessories</option>
+            <option value="Men's Dress">Men's Dress</option>
+            <option value="Women's Dress">Women's Dress</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
 
           {formData.productType === "Other" && (
             <div>

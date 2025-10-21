@@ -1,5 +1,6 @@
 import { loginUser } from "../Services/authServices";
 import { setUser, setIsSeller, setSwitcher } from "../redux/authSlice";
+import { ShoppingCart } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router";
@@ -38,15 +39,15 @@ const Login = () => {
   return (
     <section className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-100 via-pink-50 to-white text-gray-800 font-sans px-4">
       {/* Logo / Header */}
-      <Link to="/" className="flex items-center space-x-3 mb-6">
-        <motion.div
-          initial={{ rotate: -10 }}
-          animate={{ rotate: 0 }}
-          className="w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg"
-        >
-          <span className="text-white text-2xl font-extrabold">SV</span>
-        </motion.div>
-        <h1 className="text-3xl font-bold text-gray-800">ShopVerse</h1>
+      <Link to="/" className="flex items-center space-x-3 mb-6"> 
+       <div
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              className="flex items-center gap-2"
+            >
+              <ShoppingCart className="w-6 h-6 text-blue-600 text-decoration-none" /> {/* Only visible on mobile */}
+              <span className="font-extrabold text-xl text-gray-800">ShopVerse</span>
+            </div>
       </Link>
 
       {/* Login Card */}
@@ -121,7 +122,7 @@ const Login = () => {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             type="submit"
-            className="w-full py-2.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold rounded-md shadow-md hover:shadow-lg transition duration-200"
+            className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition duration-200"
           >
             Sign In
           </motion.button>

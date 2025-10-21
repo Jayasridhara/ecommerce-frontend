@@ -14,7 +14,7 @@ import { getMe } from "../Services/authServices";
 import { createCheckoutSession } from "../Services/paymentService";
 import { loadStripe } from "@stripe/stripe-js";
 import ShippingAddressModal from "../components/ShippingAddressModal";
-
+import { toast } from "react-toastify";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -237,8 +237,13 @@ console.log("Is in wishlist:", isInWishlist);
             <span className="text-purple-700">Category:</span> {product.productType}
           </p>
           <p className="text-gray-700 mb-4">
-            <span className="text-purple-700">In Stock:</span> {product.stock || 0}
-          </p> 
+            <span className="text-purple-700">Stock:</span>{" "}
+            {product.stock > 0 ? (
+              <span className="text-green-600 font-semibold">{product.stock} available</span>
+            ) : (
+              <span className="text-red-600 font-semibold">Out of Stock</span>
+            )}
+          </p>
           <p className="text-gray-700 mb-6 leading-relaxed">
             {product.description ||
               "This product blends modern design with top performance."}
@@ -247,24 +252,47 @@ console.log("Is in wishlist:", isInWishlist);
         <div className="flex items-center gap-3 mb-6">
           <span className="text-purple-700 font-semibold">Quantity:</span>
           <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+            {/* Decrease Button */}
             <button
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
               className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-lg font-bold"
             >
               −
             </button>
+
+            {/* Quantity Display */}
             <span className="px-4 text-lg font-medium">{quantity}</span>
+
+            {/* Increase Button */}
             <button
-              onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-              className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-lg font-bold"
+              onClick={() => {
+                if (quantity < product.stock) {
+                  setQuantity((q) => q + 1);
+                } else {
+                  toast.error("You have reached the maximum stock available 📦");
+                }
+              }}
+              className={`px-3 py-1 text-lg font-bold bg-gray-100 hover:bg-gray-200`}
             >
               +
             </button>
           </div>
         </div>
-
-          <div className="flex gap-4">
-
+        <div className="flex gap-4">
+        {product.stock <= 0 ? (
+          // 🟥 Out of Stock Button
+          <button
+            onClick={() => {
+              setModalMessage("This product is currently out of stock 🚫");
+              setShowModal(true);
+            }}
+            className="bg-gray-400 text-white px-5 py-2 rounded-lg font-semibold cursor-not-allowed"
+          >
+            Out of Stock
+          </button>
+        ) : (
+          <>
+            {/* 🛒 Add to Cart */}
             <button
               onClick={async () => {
                 if (!isAuthenticated) {
@@ -274,23 +302,28 @@ console.log("Is in wishlist:", isInWishlist);
                 }
                 try {
                   const res = await apiAddToCart(product._id, 1);
-                  dispatch(setCart(res.cart));
-                  dispatch(fetchCart()); 
+                  dispatch(setCart(res.cart.cartItems));
+                  dispatch(fetchCart());
                 } catch (err) {
-                  console.error('add to cart error', err);
+                  console.error("add to cart error", err);
                 }
               }}
               className="bg-gradient-to-r from-pink-500 to-purple-600 px-5 py-2 rounded-lg font-semibold hover:opacity-90"
             >
               Add to Cart
             </button>
+
+            {/* 💳 Buy Now */}
             <button
               onClick={handleBuyNow}
               className="bg-gradient-to-r from-purple-600 to-pink-500 px-5 py-2 rounded-lg font-semibold hover:opacity-90"
             >
               Buy Now
             </button>
-          </div>
+          </>
+        )}
+      </div>
+
         </div>
       </div>
 

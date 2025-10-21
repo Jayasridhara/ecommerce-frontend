@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-
 import { getSellerReports, updateOrderStatusBySeller } from "../Services/orderServices";
 
 export default function ReportSection({ onClose }) {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [expandedOrders, setExpandedOrders] = useState({}); // Track expanded rows
 
   useEffect(() => {
     loadReports();
@@ -27,23 +27,24 @@ export default function ReportSection({ onClose }) {
     }
   };
 
-const handleStatusUpdate=async(orderId,newStatus)=>{
-  try{
-    console.log("Updating order:",orderId,"to status:",newStatus);
-    setLoading(true);
-    const res=await updateOrderStatusBySeller(orderId,newStatus);
-    
-    console.log("Status update response:",res);
-    //refresh reports
-    loadReports();
-  }catch(err){
-    console.error("Failed to update order status:",err);
-  }finally{
-    setLoading(false);
-  }
-}
+  const handleStatusUpdate = async (orderId, newStatus) => {
+    try {
+      setLoading(true);
+      await updateOrderStatusBySeller(orderId, newStatus);
+      loadReports();
+    } catch (err) {
+      console.error("Failed to update order status:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-
+  const toggleAddress = (orderId) => {
+    setExpandedOrders((prev) => ({
+      ...prev,
+      [orderId]: !prev[orderId],
+    }));
+  };
 
   return (
     <div className="bg-white shadow-md rounded-xl p-6 mb-8">
@@ -51,10 +52,7 @@ const handleStatusUpdate=async(orderId,newStatus)=>{
         <h2 className="text-lg font-semibold text-blue-600">
           📊 Order Reports (Succeeded)
         </h2>
-        <button
-          className="text-red-600 hover:underline"
-          onClick={onClose}
-        >
+        <button className="text-red-600 hover:underline" onClick={onClose}>
           Close
         </button>
       </div>
@@ -72,6 +70,7 @@ const handleStatusUpdate=async(orderId,newStatus)=>{
               <tr className="bg-blue-50 border-b">
                 <th className="py-2 px-4 text-left">Order ID</th>
                 <th className="py-2 px-4 text-left">Product</th>
+                <th className="py-2 px-4 text-left">QuantityXPerUnit</th>
                 <th className="py-2 px-4 text-left">Image</th>
                 <th className="py-2 px-4 text-left">Buyer Name</th>
                 <th className="py-2 px-4 text-left">Amount</th>
@@ -83,37 +82,58 @@ const handleStatusUpdate=async(orderId,newStatus)=>{
             <tbody>
               {reports.map((order) =>
                 order.cartItems.map((item, idx) => (
-                  <tr
-                    key={order._id + "-" + idx}
-                    className="border-b hover:bg-gray-50"
-                  >
-                    <td className="py-2 px-4">{order._id}</td>
-                    <td className="py-2 px-4">{item.name}</td>
-                    <td className="py-2 px-4">
-                      <img
-                        src={item.image || "https://via.placeholder.com/60"}
-                        alt={item.name}
-                        className="w-12 h-12 object-cover rounded"
-                      />
-                    </td>
-                    <td className="py-2 px-4">{order.buyer.name}</td>
-                    <td className="py-2 px-4">${order.totalAmount}</td>
-                    <td className="py-2 px-4 text-green-600 font-medium">
-                      {item.status}
-                    </td>
-                    <td className="py-2 px-4">
-                      <select value={item.status} onChange={(e)=>handleStatusUpdate(order._id,e.target.value)} className="border border-gray-300 rounded px-2 py-1">
-                        <option value="pending">Pending</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Delivered</option>
-                       
-                      </select>
-                    </td>
+                  <React.Fragment key={order._id + "-" + idx}>
+                    <tr className="border-b hover:bg-gray-50">
+                      <td className="py-2 px-4">{order._id}</td>
+                      <td className="py-2 px-4">{item.name}</td>
+                      <td className="py-2 px-4">{item.qty}X{item.price}</td>
+                      <td className="py-2 px-4">
+                        <img
+                          src={item.image || "https://via.placeholder.com/60"}
+                          alt={item.name}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                      </td>
+                      <td
+                        className="py-2 px-4 text-blue-600 cursor-pointer hover:underline"
+                        onClick={() => toggleAddress(order._id)}
+                      >
+                        {order.buyer.name} {expandedOrders[order._id] ? "▲" : "▼"}
+                      </td>
+                      <td className="py-2 px-4">${order.totalAmount}</td>
+                      <td className="py-2 px-4 text-green-600 font-medium">
+                        {item.status}
+                      </td>
+                      <td className="py-2 px-4">
+                        <select
+                          value={item.status}
+                          onChange={(e) =>
+                            handleStatusUpdate(order._id, e.target.value)
+                          }
+                          className="border border-gray-300 rounded px-2 py-1"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="shipped">Shipped</option>
+                          <option value="delivered">Delivered</option>
+                        </select>
+                      </td>
+                      <td className="py-2 px-4">
+                        {new Date(order.createdAt).toLocaleString()}
+                      </td>
+                    </tr>
 
-                    <td className="py-2 px-4">
-                      {new Date(order.createdAt).toLocaleString()}
-                    </td>
-                  </tr>
+                    {/* Shipping Address Row */}
+                    {expandedOrders[order._id] && (
+                      <tr className="bg-gray-50 border-b">
+                        <td colSpan={8} className="py-2 px-4 text-gray-700">
+                          <strong>Shipping Address:</strong>{" "}
+                          {order.shippingAddress
+                            ? `${order.shippingAddress.fullName}, ${order.shippingAddress.addressLine1}, ${order.shippingAddress.city}, ${order.shippingAddress.state}, ${order.shippingAddress.postalCode}, ${order.shippingAddress.country}, Phone: ${order.shippingAddress.phone}`
+                            : "Not provided"}
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))
               )}
             </tbody>
