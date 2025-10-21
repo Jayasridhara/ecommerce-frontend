@@ -3,40 +3,74 @@ import { apiAddToCart } from "../Services/cartServices";
 import { fetchCart, setCart } from "../redux/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/Navbar";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 
 export default function Home() {
-  const products = useLoaderData();
-  const [query, setQuery] = useState("");
-  const [filterType, setFilterType] = useState("All");
-  const [filterRating, setFilterRating] = useState("All");
-  const [filterColor, setFilterColor] = useState("All");
-  const [priceRange, setPriceRange] = useState(1500);
+  const products = useLoaderData() || [];
+  const [filters, setFilters] = useState({
+    type: "",
+    color: "",
+    minPrice: "",
+    maxPrice: "",
+    query: "",
+  });
+  const [availableFilters, setAvailableFilters] = useState({
+    types: [],
+    colors: [],
+    ratings: [],
+  });
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const {user,isAuthenticated } = useSelector((state) => state.auth);
+  console.log("User in Home:", user);
+  // Load available filters from products
+  useEffect(() => {
+    const uniqueTypes = [...new Set(products.map((p) => p.productType).filter(Boolean))];
+    const uniqueColors = [...new Set(products.map((p) => p.color).filter(Boolean))];
+    const uniqueRatings = [...new Set(products.map((p) => Math.floor(p.rating)).filter(Boolean))];
+    setAvailableFilters({ types: uniqueTypes, colors: uniqueColors, ratings: uniqueRatings });
+  }, [products]);
 
-  // filter options
-  const types = useMemo(() => [...new Set(products.map(p => p.productType).filter(Boolean))], [products]);
-  const colors = useMemo(() => [...new Set(products.map(p => p.color).filter(Boolean))], [products]);
-  const ratings = useMemo(() => [...new Set(products.map(p => Math.floor(p.rating)).filter(Boolean))], [products]);
+  // Handle filter change
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
 
-  // filter logic
-  const filtered = products.filter((p) => {
-    const matchName = p.name?.toLowerCase().includes(query.toLowerCase());
-    const matchType = filterType === "All" || p.productType === filterType;
-    const matchRating = filterRating === "All" || p.rating >= parseFloat(filterRating);
-    const matchColor = filterColor === "All" || p.color === filterColor;
-    const matchPrice = p.price <= priceRange;
-    return matchName && matchType && matchRating && matchColor && matchPrice;
-  });
+  // Clear filters
+  const clearFilters = () => {
+    setFilters({
+      type: "",
+      color: "",
+      minPrice: "",
+      maxPrice: "",
+      query: "",
+    });
+  };
+
+  // Apply filtering logic
+  const filtered = useMemo(() => {
+    return products.filter((p) => {
+       // hide seller’s own products
+      if (user && p.seller && p.seller.id === user.id) {
+        return false;
+      }
+      const matchName = p.name?.toLowerCase().includes(filters.query.toLowerCase());
+      const matchType = !filters.type || p.productType === filters.type;
+      const matchColor = !filters.color || p.color === filters.color;
+      const matchMin = !filters.minPrice || p.price >= Number(filters.minPrice);
+      const matchMax = !filters.maxPrice || p.price <= Number(filters.maxPrice);
+      return matchName && matchType && matchColor && matchMin && matchMax;
+    });
+  }, [products, filters,user]);
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-blue-100 text-gray-800 font-sans">
       <Navbar />
 
-      {/* Hero */}
+      {/* Hero Section */}
       <section className="text-center py-12 bg-gradient-to-r from-blue-100 via-white to-purple-100 shadow-sm">
         <h2 className="text-4xl font-extrabold text-gray-800">Upgrade Your Lifestyle</h2>
         <p className="text-gray-600 mt-2 text-lg">
@@ -49,58 +83,63 @@ export default function Home() {
         <div className="flex flex-wrap justify-center items-center gap-4 bg-white rounded-2xl shadow-md p-5 border border-gray-100">
           <input
             type="text"
+            name="query"
             placeholder="Search products..."
             className="px-4 py-2 rounded-full border border-gray-300 bg-gray-50 text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:outline-none w-56"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            value={filters.query}
+            onChange={handleFilterChange}
           />
 
           <select
+            name="type"
+            value={filters.type}
+            onChange={handleFilterChange}
             className="px-4 py-2 rounded-full border border-gray-300 bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-400"
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
           >
-            <option value="All">All Types</option>
-            {types.map((t) => (
-              <option key={t}>{t}</option>
+            <option value="">All Types</option>
+            {availableFilters.types.map((t, i) => (
+              <option key={i}>{t}</option>
             ))}
           </select>
 
           <select
+            name="color"
+            value={filters.color}
+            onChange={handleFilterChange}
             className="px-4 py-2 rounded-full border border-gray-300 bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-400"
-            value={filterRating}
-            onChange={(e) => setFilterRating(e.target.value)}
           >
-            <option value="All">All Ratings</option>
-            {ratings.map((r) => (
-              <option key={r} value={r}>
-                {r}★ & up
-              </option>
+            <option value="">All Colors</option>
+            {availableFilters.colors.map((c, i) => (
+              <option key={i}>{c}</option>
             ))}
           </select>
 
-          <select
-            className="px-4 py-2 rounded-full border border-gray-300 bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-400"
-            value={filterColor}
-            onChange={(e) => setFilterColor(e.target.value)}
-          >
-            <option value="All">All Colors</option>
-            {colors.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
-
-          <div className="flex flex-col items-center">
-            <label className="text-sm text-gray-600 mb-1">Max Price: ${priceRange}</label>
+          <div className="flex items-center gap-2">
             <input
-              type="range"
-              min="0"
-              max="10000"
-              value={priceRange}
-              onChange={(e) => setPriceRange(Number(e.target.value))}
-              className="w-44 accent-blue-500"
+              type="number"
+              name="minPrice"
+              placeholder="Min"
+              value={filters.minPrice}
+              onChange={handleFilterChange}
+              className="w-20 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400"
+            />
+            <span>-</span>
+            <input
+              type="number"
+              name="maxPrice"
+              placeholder="Max"
+              value={filters.maxPrice}
+              onChange={handleFilterChange}
+              className="w-20 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400"
             />
           </div>
+
+          <button
+            onClick={clearFilters}
+            className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition font-medium"
+          >
+            Clear Filters
+          </button>
         </div>
       </section>
 

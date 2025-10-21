@@ -11,7 +11,9 @@ import {
   getFilteredProducts,
 } from "../Services/productServices";
 import ReportSection from "./ReportSection";
-
+import { getMe } from "../Services/authServices";
+import { toast } from "react-toastify";
+import ShopDetailsModal from "../components/ShopDetailsModal";
 export default function SellerDashboard() {
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState({
@@ -140,6 +142,38 @@ export default function SellerDashboard() {
     });
   };
 
+
+  const [showShopModal, setShowShopModal] = useState(false);
+
+const checkSellerDetails = async () => {
+  try {
+    const data = await getMe(); // your API
+    const user = data?.user || data;
+
+    if (!user) {
+      toast.error("User not found!");
+      return;
+    }
+
+    const shop = user.shopAddress || {};
+    const isShopComplete =
+      user.shopName?.trim() &&
+      shop.addressLine1?.trim() &&
+      shop.city?.trim() &&
+      shop.state?.trim() &&
+      shop.postalCode?.trim() &&
+      shop.country?.trim() &&
+      shop.phone?.trim();
+
+    if (!isShopComplete) {
+      setShowShopModal(true); // show popup to complete details
+    } else {
+      setIsModalOpen(true); // directly open ProductFormModal
+    }
+  } catch (err) {
+    toast.error("Failed to verify shop details");
+  }
+};
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 text-gray-800">
       <Navbar />
@@ -156,15 +190,12 @@ export default function SellerDashboard() {
             📊 Reports
           </button>
           <button
-            type="button"
-            onClick={() => {
-              setIsModalOpen(true);
-              setEditingProduct(null);
-            }}
-            className="flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow transition"
-          >
-            <PlusCircle className="mr-2" size={18} /> Add Product
-          </button>
+          type="button"
+          onClick={checkSellerDetails}
+          className="flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow transition"
+        >
+          <PlusCircle className="mr-2" size={18} /> Add Product
+        </button>
         </div>
       </header>
 
@@ -337,6 +368,14 @@ export default function SellerDashboard() {
         setFormData={setFormData}
         editingProduct={editingProduct}
       />
+     <ShopDetailsModal
+       show={showShopModal}
+       onClose={() => setShowShopModal(false)}
+       onSuccess={() => {
+         setShowShopModal(false);
+         setIsModalOpen(true); // open product modal after saving
+       }}
+     />
     </div>
   );
 }

@@ -13,10 +13,7 @@ export const loginUser = async (credentials) => {
     return response.data;
 };
 
-export const getMe = async () => {
-    const response = await protectedInstance.get("/auth/getMe");
-    return response.data;
-};
+
     
 export const profile = async () => {
     const response = await protectedInstance.put("/auth/profile");
@@ -32,4 +29,12 @@ export const logoutUser = async () => {
 export const deleteProfile = async () => {
   const response = await protectedInstance.delete('/auth/profile/delete');
   return response.data;
+};
+export const getMe = async () => {
+    const response = await protectedInstance.get("/auth/getMe");
+    return response.data;
+};
+export const updateShippingAddress = async (address) => {
+  const { data } = await protectedInstance.put("/auth/profile/shipping-address", address);
+  return data;
 };

@@ -10,6 +10,10 @@ import AlertModal from "./AlertModal";
 import { addOrUpdateReview} from "../Services/productServices";
 import { apiAddToCart } from "../Services/cartServices";
 import { setCart } from "../redux/cartSlice";
+import { getMe } from "../Services/authServices";
+import { createCheckoutSession } from "../Services/paymentService";
+import { loadStripe } from "@stripe/stripe-js";
+import ShippingAddressModal from "../components/ShippingAddressModal";
 
 
 export default function ProductDetails() {
@@ -28,6 +32,9 @@ export default function ProductDetails() {
   const [comment, setComment] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [showShippingModal, setShowShippingModal] = useState(false);
+  const [userAddress, setUserAddress] = useState(null);
 
   // normalize wishlist (flat array of product objects or id strings)
   const sanitizedWishlist = Array.isArray(wishlist)
@@ -92,6 +99,86 @@ console.log("Is in wishlist:", isInWishlist);
     }
   };
 
+  // handle Buy Now
+  const handleBuyNow = async () => {
+    if (!isAuthenticated) {
+      setModalMessage("Please log in to buy this product 🛒");
+      setShowModal(true);
+      return;
+    }
+
+    try {
+      // ✅ fetch user data
+      const userData = await getMe();
+      const addr = userData.shippingAddress || {};
+
+      const requiredFields = [
+        "fullName",
+        "addressLine1",
+        "city",
+        "state",
+        "postalCode",
+        "country",
+        "phone",
+      ];
+      const missing = requiredFields.filter((f) => !addr[f] || addr[f].trim() === "");
+
+      if (missing.length > 0) {
+        // Show modal to update shipping address
+        setUserAddress(addr);
+        setShowShippingModal(true);
+        return;
+      }
+
+      // Proceed to checkout if address exists
+      await proceedToCheckout(addr);
+    } catch (err) {
+      console.error("Buy Now failed:", err);
+      setModalMessage("Buy Now failed. Please try again ❌");
+      setShowModal(true);
+    }
+  };
+
+  // ✅ function to proceed to checkout
+  const proceedToCheckout = async (addr) => {
+    setModalMessage("Preparing checkout...");
+    setShowModal(true);
+
+    const payloadItems = [
+      {
+        id: product._id,
+        name: product.name,
+        image: product.image,
+        qty: quantity,
+        price: (product.price * quantity).toFixed(2),
+        seller: {
+          id: product.seller?.id || null,
+          name: product.seller?.name || null,
+          email: product.seller?.email || null,
+          status: "cart",
+        },
+      },
+    ];
+
+    const orderId = product._id + "-buynow-" + Date.now();
+    const data = await createCheckoutSession(payloadItems, user._id, orderId);
+
+    if (data.url) {
+      window.location.href = data.url;
+      return;
+    }
+
+    if (data.sessionId && data.publishableKey) {
+      const stripe = await loadStripe(data.publishableKey);
+      if (!stripe) throw new Error("Failed to initialize Stripe");
+      const { error } = await stripe.redirectToCheckout({ sessionId: data.sessionId });
+      if (error) throw error;
+      return;
+    }
+
+    throw new Error("Invalid checkout response from server");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-white text-gray-800 font-sans">
       <Navbar />
@@ -121,7 +208,10 @@ console.log("Is in wishlist:", isInWishlist);
             {product.name}
           </h2>
           <p className="text-xl text-pink-600 font-semibold mb-2">
-            ${product.price?.toFixed(2)}
+            ${ (product.price * quantity).toFixed(2) }
+            <span className="text-sm text-gray-500 ml-2">
+              (${product.price.toFixed(2)} each)
+            </span>
           </p>
 
           {/* ⭐ Rating */}
@@ -153,8 +243,28 @@ console.log("Is in wishlist:", isInWishlist);
             {product.description ||
               "This product blends modern design with top performance."}
           </p>
+          {/* Quantity Selector */}
+        <div className="flex items-center gap-3 mb-6">
+          <span className="text-purple-700 font-semibold">Quantity:</span>
+          <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+            <button
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-lg font-bold"
+            >
+              −
+            </button>
+            <span className="px-4 text-lg font-medium">{quantity}</span>
+            <button
+              onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
+              className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-lg font-bold"
+            >
+              +
+            </button>
+          </div>
+        </div>
 
           <div className="flex gap-4">
+
             <button
               onClick={async () => {
                 if (!isAuthenticated) {
@@ -175,9 +285,7 @@ console.log("Is in wishlist:", isInWishlist);
               Add to Cart
             </button>
             <button
-              onClick={() =>
-                setModalMessage("Proceeding to checkout...") || setShowModal(true)
-              }
+              onClick={handleBuyNow}
               className="bg-gradient-to-r from-purple-600 to-pink-500 px-5 py-2 rounded-lg font-semibold hover:opacity-90"
             >
               Buy Now
@@ -260,6 +368,16 @@ console.log("Is in wishlist:", isInWishlist);
       >
         {modalMessage}
       </AlertModal>
+       <ShippingAddressModal
+        show={showShippingModal}
+        existingData={userAddress}
+        onClose={() => setShowShippingModal(false)}
+        onSave={async () => {
+          setShowShippingModal(false);
+          const updatedUser = await getMe();
+          await proceedToCheckout(updatedUser.shippingAddress);
+        }}
+      />
     </div>
   );
 }

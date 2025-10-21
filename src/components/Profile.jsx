@@ -267,28 +267,10 @@ function ProfilePage() {
                   />
                   {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
                 </div>
-                <div>
-                  <label className="block mb-1 font-medium text-gray-700">Phone</label>
-                  <input
-                    name="phone"
-                    value={form.phone}
-                    onChange={handleChange}
-                    className="w-full border rounded px-3 py-2"
-                  />
-                  {errors.phone && <p className="text-red-600 text-sm">{errors.phone}</p>}
-                </div>
+               
               </div>
 
-              <div>
-                <label className="block mb-1 font-medium text-gray-700">Location</label>
-                <input
-                  name="location"
-                  value={form.location}
-                  onChange={handleChange}
-                  className="w-full border rounded px-3 py-2"
-                />
-                {errors.location && <p className="text-red-600 text-sm">{errors.location}</p>}
-              </div>
+              
               {/* Shipping Address */}
               <hr className="my-4" />
               <h3 className="text-lg font-semibold">Shipping Address</h3>

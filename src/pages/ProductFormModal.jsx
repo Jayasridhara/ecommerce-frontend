@@ -1,5 +1,6 @@
 import React from "react";
 import { X } from "lucide-react";
+import ShopDetailsModal from "../components/ShopDetailsModal";
 
 export default function ProductFormModal({
   isOpen,
@@ -233,6 +234,8 @@ export default function ProductFormModal({
           </div>
         </form>
       </div>
+      
     </div>
+
   );
 }

@@ -1,7 +1,7 @@
   import { useEffect, useState } from "react";
   import { useDispatch, useSelector } from "react-redux";
   import { motion } from "framer-motion";
-
+import { toast } from "react-toastify";
   import { loadStripe } from "@stripe/stripe-js";
   import { clearCart, setCart } from "../redux/cartSlice";
   import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
@@ -11,6 +11,8 @@
   import Navbar from "../components/Navbar";
   import { apiClearCart, apiGetCart, apiRemoveFromCart, apiUpdateCartQty } from "../Services/cartServices";
 import protectedInstance from "../instance/protectedInstance";
+import { getMe } from "../Services/authServices";
+import ShippingAddressModal from "../components/ShippingAddressModal";
 
   export default function Cart() {
     const { items } = useSelector((state) => state.cart);
@@ -18,6 +20,7 @@ import protectedInstance from "../instance/protectedInstance";
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [showAlert, setShowAlert] = useState(false);
+     const [showAddressModal, setShowAddressModal] = useState(false);
     const [checkoutLoading, setCheckoutLoading] = useState(false);
     console.log("items",items)
     // 👇 Watch for when cart becomes empty
@@ -44,7 +47,31 @@ import protectedInstance from "../instance/protectedInstance";
       
       setCheckoutLoading(true);
       try {
+        setCheckoutLoading(true);
+        const userData = await getMe();
+        console.log("Fetched user data:", userData);
+        const addr = userData.shippingAddress || {};
+        console.log("User shipping address:", addr);
+        const requiredFields = [
+          "fullName",
+          "addressLine1",
+          "city",
+          "state",
+          "postalCode",
+          "country",
+          "phone",
+        ];
 
+        const missing = requiredFields.filter(
+          (f) => !addr[f] || addr[f].trim() === ""
+        );
+
+        if (missing.length > 0) {
+          toast.info("Please complete your shipping address before checkout.");
+          setShowAddressModal(true);
+          setCheckoutLoading(false);
+          return;
+        }
         const cartRes = await protectedInstance.get("/cart");
         console.log("cart response", cartRes);
         const orderId = cartRes.data?.cart?._id;
@@ -77,7 +104,7 @@ import protectedInstance from "../instance/protectedInstance";
           if (error) throw error;
           return;
         }
-
+        toast.success("Address verified. Proceeding to checkout...");
         throw new Error("Invalid checkout response from server");
       } catch (err) {
         console.error("Checkout failed", err);
@@ -221,25 +248,31 @@ import protectedInstance from "../instance/protectedInstance";
                 <p className="text-2xl font-bold text-purple-600">${total}</p>
               </div>
 
-              <div className="mt-6 flex flex-col sm:flex-row justify-between gap-4">
+              <div className="mt-6 flex flex-col sm:flex-row justify-between gap-2">
                 <button
                   onClick={handleClearCart}
-                  className="bg-purple-500 hover:bg-purple-400 text-white px-5 py-2 rounded-lg font-semibold"
+                  className="bg-purple-500 hover:bg-purple-400 px-6 py-2 rounded-lg"
                 >
                   Clear Cart
                 </button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  onClick={handleCheckout}
-                  className="bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold px-6 py-2 rounded-lg shadow-lg"
-                  disabled={checkoutLoading}
-                >
-                  {checkoutLoading ? "Processing..." : "Proceed to Checkout"}
-                </motion.button>
+               
+                  <button
+                    onClick={handleCheckout}
+                    disabled={checkoutLoading}
+                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                  >
+                    {checkoutLoading ? "Processing..." : "Proceed to Checkout"}
+                  </button>
+                
               </div>
             </motion.div>
           )}
 
+          <ShippingAddressModal
+        show={showAddressModal}
+        onClose={() => setShowAddressModal(false)}
+        onSave={handleCheckout}
+      />
           <AlertModal show={showAlert} onClose={handleCloseAlert} />
         </div>
       </>

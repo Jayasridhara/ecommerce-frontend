@@ -59,7 +59,7 @@ export default function MyOrders() {
             className="bg-white shadow-md rounded-2xl p-6 mb-8"
           >
             {/* Header */}
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-2">
               <div>
                 <div className="text-sm text-gray-500">
                   Order ID:{" "}
@@ -72,7 +72,7 @@ export default function MyOrders() {
               <div className="text-right">
                 <div
                   className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                    order.status === "succeeded"
+                    order.status === "paid"
                       ? "bg-green-100 text-green-700"
                       : "bg-purple-100 text-purple-700"
                   }`}
@@ -92,7 +92,7 @@ export default function MyOrders() {
                 const isExpanded = expandedItem === itemKey;
 
                 return (
-                  <div key={itemKey} className="py-5">
+                  <div key={itemKey} className="py-1">
                     <div className="flex flex-col md:flex-row md:items-center">
                       <div className="flex items-center md:w-2/3">
                         <img
@@ -209,7 +209,7 @@ function StatusProgress({ status, paymentDate, shippedDate, deliveredDate, expec
   };
 
   return (
-    <div className="relative mt-6">
+    <div className="relative mt-3">
       {/* Background line */}
       <div className="absolute top-5 left-0 w-full h-1 bg-gray-200 rounded-full z-0" />
       {/* Progress line */}

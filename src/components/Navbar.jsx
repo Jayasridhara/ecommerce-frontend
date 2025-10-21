@@ -1,82 +1,34 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate, useLocation } from "react-router";
-import { ShoppingCart, Search, PlusCircle, Home as HomeIcon,Heart  } from "lucide-react";
+import { ShoppingCart, Heart, PlusCircle } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearUser, setIsSeller } from "../redux/authSlice";
-import { clearCart, fetchCart, setCart } from "../redux/cartSlice";
-import { clearWishlist, fetchWishlist } from "../redux/wishlistSlice"; // <-- added
-import defaultImage from "../assets/avatar-character.jpg";  
-import { apiGetCart } from "../Services/cartServices";
+import { clearCart, fetchCart } from "../redux/cartSlice";
+import { clearWishlist, fetchWishlist } from "../redux/wishlistSlice";
 import { getMyOrders } from "../Services/orderServices";
+
 export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [query, setQuery] = useState("");
   const profileRef = useRef();
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-//Cart Count
+
   const { isAuthenticated, user, isSeller, token } = useSelector((state) => state.auth);
-  const cartCount = useSelector((state) =>
-    state.cart.items.length ? state.cart.items.length : state.cart.items.reduce((total, item) => total + item.qty, 0
-  ));
-    useEffect(() => {
-      console.log("Auth or user changed, fetching cart...");
-      if (isAuthenticated) dispatch(fetchCart());
-     
-      else dispatch(clearCart());
-       console.log("cartcount",cartCount);
-    }, [isAuthenticated, user?.id, token,cartCount]);
-//Cart Count Ends Here
-//Wishlist Count
-  const wishlistCount = useSelector((state) => {
-    const items = state.wishlist.items || [];
-    const flat = items.reduce((acc, cur) => {
-      if (Array.isArray(cur)) return acc.concat(cur.filter(Boolean));
-      if (cur) acc.push(cur);
-      return acc;
-    }, []);
-    return flat.length;
-  });
- console.log("Wishlist count:", user);
+  const cartCount = useSelector((state) => state.cart.items.length || 0);
+  const wishlistCount = useSelector((state) => state.wishlist.items.length || 0);
+  const [orders, setOrders] = useState([]);
+
   useEffect(() => {
-    // fetch wishlist whenever user logs in or user id changes
-    if (isAuthenticated && user?.id) {
-      dispatch(fetchWishlist({ userId: user.id }));
-        
-    } else {
-       dispatch(clearWishlist());  
-    }
-  }, [isAuthenticated, user?.id, token, dispatch]); 
-//Wishlist Count Ends Here
+    if (isAuthenticated) dispatch(fetchCart());
+    else dispatch(clearCart());
+  }, [isAuthenticated, user?.id, token]);
 
-// Close profile dropdown on outside click
-    useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (profileRef.current && !profileRef.current.contains(event.target)) {
-        setProfileOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-// Logout handler
-  const handleLogout = () => {
-  dispatch(clearUser());
-  dispatch(setIsSeller(false));
-  dispatch(clearCart());        // clear cart items
-  dispatch(clearWishlist());    // clear wishlist items
-  navigate("/", { replace: true });
-  };
-
-  const onHomeClick = () => {
-    navigate("/");
-  };
-
- const [orders, setOrders] = useState([]);
+  useEffect(() => {
+    if (isAuthenticated && user?.id) dispatch(fetchWishlist({ userId: user.id }));
+    else dispatch(clearWishlist());
+  }, [isAuthenticated, user?.id, token]);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -85,167 +37,144 @@ export default function Navbar() {
         setOrders(data);
       } catch (err) {
         console.error("Error fetching orders:", err);
-      } 
+      }
     };
-
     fetchOrders();
   }, []);
-  
-// Determine if current page is a seller page
-const isSellerPage = location.pathname.startsWith("/seller");
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    dispatch(clearUser());
+    dispatch(setIsSeller(false));
+    dispatch(clearCart());
+    dispatch(clearWishlist());
+    navigate("/", { replace: true });
+  };
+
+  const isSellerPage = location.pathname.startsWith("/seller");
 
   return (
-    <nav className="bg-gradient-to-br from-purple-900 via-purple-800 to-black text-white shadow-lg sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-        {/* Logo or Home icon */}
-        <div className="flex items-center gap-3">
-        
-           <Link to="/" className="flex items-center gap-2">
-            {/* Motion wrapper for logo and title */}
-            <motion.div
-              className="flex items-center gap-2 text-2xl font-extrabold tracking-wide text-white drop-shadow-md text-decoration-none"
-              whileHover={{
-                scale: 1.1,
-                rotate: 5,
-              }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
-            >
-              <motion.div
-                whileHover={{ scale: 1.2, rotate: 15 }}
-                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-              >
-                <ShoppingCart className="w-6 h-6 text-white cursor-pointer" />
-              </motion.div>
-              <motion.span
-                whileHover={{ scale: 1.05, x: 2 }}
-                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-              >
-                ShopVerse
-              </motion.span>
-            </motion.div>
-          </Link>
-         
-        </div>
+    <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-5 py-3 flex justify-between items-center">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+            className="flex items-center gap-2"
+          >
+            <ShoppingCart className="w-6 h-6 text-blue-600" />
+            <span className="font-extrabold text-xl text-gray-800">ShopVerse</span>
+          </motion.div>
+        </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-5">
-          {/* Search */}
-        
-
-          {/* If seller -> show Create Product (smaller button) */}
+        <div className="hidden md:flex items-center gap-6">
           {isAuthenticated && user?.role === "seller" && isSeller && !isSellerPage && (
             <button
               onClick={() => navigate("/seller")}
-              className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold px-3 py-1.5 rounded-full shadow-lg border border-white/30 hover:from-pink-400 hover:to-purple-500 transition-all duration-200 hover:scale-105 text-sm"
+              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-1.5 rounded-full font-semibold hover:bg-blue-600 transition-all"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>New Product</span>
+              New Product
             </button>
           )}
-          {isAuthenticated && location.pathname !== "/orders" &&(
-             orders.length > 0 ? (
+
+          {/* My Orders */}
+          {isAuthenticated && location.pathname !== "/orders" && (
+            orders.length > 0 ? (
               <Link
                 to="/orders"
-                className={`text-decoration-none gap-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold px-5 py-2 shadow-lg border border-white/30 hover:from-pink-400 hover:to-purple-500 transition-all duration-200 hover:scale-105 text-sm ${
-                  location.pathname === "/orders" ? "opacity-60 pointer-events-none" : ""
-                }`}
+                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:opacity-90 transition-all text-decroration-none "
               >
                 My Orders
               </Link>
             ) : (
               <button
                 disabled
-                title="You have no orders yet"
-                className="gap-2 bg-gray-400 text-white font-bold px-5 py-2 rounded-full shadow-md opacity-60 cursor-not-allowed text-sm"
+                className="px-4 py-2 rounded-full bg-gray-200 text-gray-500 font-medium cursor-not-allowed"
               >
                 My Orders
               </button>
             )
           )}
-          {!isSellerPage && (
-              wishlistCount > 0 ? (
-                location.pathname.startsWith("/wishlist") ? (
-                  <div
-                    className="relative opacity-60 pointer-events-none"
-                    aria-current="page"
-                    title="Wishlist"
-                  >
-                    <Heart className="w-6 h-6 text-pink-300" />
-                    <span className="absolute -top-2 -right-2 bg-pink-500 text-xs px-2 rounded-full">
-                      {wishlistCount}
-                    </span>
-                  </div>
-                ) : (
-                  <Link to="/wishlist" className="relative hover:scale-105 transition-transform">
-                    <Heart className="w-6 h-6 text-pink-400 cursor-pointer" />
-                    <span className="absolute -top-2 -right-2 bg-pink-500 text-xs px-2 rounded-full">
-                      {wishlistCount}
-                    </span>
-                  </Link>
-                )
-              ) : (
-                <div
-                  className="relative opacity-50 cursor-not-allowed"
-                  title="Your wishlist is empty"
-                >
-                  <Heart className="w-6 h-6 text-pink-300" />
-                </div>
-              ) 
-            )}
 
-            {/* Cart */}
-            {!isSellerPage && (
-              cartCount > 0 ? (
-                location.pathname.startsWith("/cart") ? (
-                  <div className="relative opacity-60 pointer-events-none" title="Cart">
-                    <ShoppingCart className="w-6 h-6 text-green-400" />
-                    <span className="absolute -top-2 -right-2 bg-green-500 text-xs px-2 rounded-full">
-                      {cartCount}
-                    </span>
-                  </div>
-                ) : (
-                  <Link to="/cart" className="relative hover:scale-105 transition-transform">
-                    <ShoppingCart className="w-6 h-6 text-green-600" />
-                    <span className="absolute -top-2 -right-2 bg-green-500 text-xs px-2 rounded-full">
-                      {cartCount}
-                    </span>
-                  </Link>
-                )
-              ) : (
-                <div
-                  className="relative opacity-50 cursor-not-allowed"
-                  title="Your cart is empty"
-                >
-                  <ShoppingCart className="w-6 h-6 text-green-400" />
-                </div>
-              )
-            )}
+          {/* Wishlist */}
+          {!isSellerPage && (
+            <Link
+              to="/wishlist"
+              className={`relative hover:scale-105 transition-transform ${
+                wishlistCount === 0 ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              <Heart
+                className={`w-6 h-6 ${
+                  location.pathname.startsWith("/wishlist") ? "text-pink-500" : "text-gray-700"
+                }`}
+              />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-pink-500 text-white text-xs px-2 rounded-full">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+          )}
+
+          {/* Cart */}
+          {!isSellerPage && (
+            <Link
+              to="/cart"
+              className={`relative hover:scale-105 transition-transform ${
+                cartCount === 0 ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              <ShoppingCart
+                className={`w-6 h-6 ${
+                  location.pathname.startsWith("/cart") ? "text-blue-600" : "text-gray-700"
+                }`}
+              />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 rounded-full">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          )}
 
           {/* Auth / Profile */}
           {!isAuthenticated ? (
             <>
-              <Link to="/login" className="text-white font-semibold text-lg hover:text-orange-200 transition">
+              <Link
+                to="/login"
+                className="text-gray-700 font-medium hover:text-blue-600 transition"
+              >
                 Login
               </Link>
               <Link
                 to="/register"
-                className="bg-gradient-to-r from-pink-400 to-pink-600 text-white font-bold px-6 py-2 rounded-full shadow-lg hover:scale-105 transition-all"
+                className="bg-blue-500 text-white font-semibold px-5 py-2 rounded-full hover:bg-blue-600 transition"
               >
                 Register
               </Link>
             </>
           ) : (
-            
             <div className="relative" ref={profileRef}>
               <button
-                className="flex items-center gap-2 focus:outline-none"
                 onClick={() => setProfileOpen((prev) => !prev)}
+                className="flex items-center gap-2 focus:outline-none"
               >
-                <span className="w-11 h-11 bg-white/40 backdrop-blur-md text-white rounded-full flex items-center justify-center text-2xl font-extrabold border-2 border-white/70 shadow-lg">
+                <span className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-lg border border-blue-300">
                   {user?.name?.charAt(0).toUpperCase()}
                 </span>
                 <svg
-                  className="w-5 h-5 text-white"
+                  className="w-4 h-4 text-gray-700"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
@@ -256,75 +185,38 @@ const isSellerPage = location.pathname.startsWith("/seller");
               </button>
 
               {profileOpen && (
-                <div className="absolute right-0 mt-4 w-56 bg-white/90 backdrop-blur-2xl rounded-2xl shadow-2xl border border-gray-200 z-50 animate-fadeIn">
-                  <div className="py-4 px-4 flex flex-col gap-2">
-                    <span className="text-left px-4 text-lg font-bold text-indigo-700 mb-1 ">
-                       {user?.name.charAt(0).toUpperCase()+user.name.slice(1)} {user?.role.charAt(0).toUpperCase()+user.role.slice(1)}
-                    </span>
-                  
-                   <Link
+                <div className="absolute right-0 mt-3 w-52 bg-white border border-gray-200 rounded-2xl shadow-xl py-2 z-50">
+                  <div className="px-4 py-2 text-gray-700 font-semibold border-b border-gray-100">
+                    {user?.name}
+                  </div>
+                  <Link
                     to="/profile"
-                    className="block px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-gradient-to-r hover:from-indigo-100 hover:to-orange-100 transition text-decoration-none"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setProfileOpen(false);
-                      if (location.pathname === "/profile") {
-                        // Already on profile — trigger re-fetch
-                        navigate(0); // full reload (simple)
-                      } else {
-                        navigate("/profile");
-                      }
-                    }}
+                    onClick={() => setProfileOpen(false)}
+                    className="block px-4 py-2 text-gray-600 hover:bg-blue-50 transition"
                   >
                     Profile
                   </Link>
-                    <button
-                      className="w-full text-left px-4 py-2 rounded-lg text-red-600 font-medium hover:bg-gradient-to-r hover:from-pink-100 hover:to-orange-100 transition"
-                      onClick={() => {
-                        setProfileOpen(false);
-                        handleLogout();
-                      }}
-                    >
-                      Logout
-                    </button>
-                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 transition"
+                  >
+                    Logout
+                  </button>
                 </div>
               )}
             </div>
-            
           )}
         </div>
 
-        {/* Mobile Menu */}
-        <div className="md:hidden flex items-center">
-          <button
-            className="text-white hover:text-orange-200 focus:outline-none"
-            onClick={() => setMobileOpen((prev) => !prev)}
-          >
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
+        {/* Mobile menu placeholder (if you want later) */}
+        <div className="md:hidden">
+          <button className="text-gray-700 hover:text-blue-600">
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
         </div>
       </div>
-
-      <style>
-        {`
-          .animate-fadeIn {
-            animation: fadeIn 0.22s ease-out;
-          }
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-12px);}
-            to { opacity: 1; transform: translateY(0);}
-          }
-        `}
-      </style>
     </nav>
   );
 }
