@@ -22,7 +22,8 @@ export default function Navbar() {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    if (isAuthenticated) dispatch(fetchCart());
+    if (isAuthenticated)
+       dispatch(fetchCart());
     else dispatch(clearCart());
   }, [isAuthenticated, user?.id, token]);
 
