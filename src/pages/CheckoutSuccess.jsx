@@ -47,7 +47,7 @@ export default function CheckoutSuccess() {
 
     fetchSession();
   }, [sessionId]);
-
+    console.log("session",session)
   // 🌀 Loading UI
   if (loading)
     return (

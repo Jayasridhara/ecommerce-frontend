@@ -7,6 +7,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { setUser } from "../redux/authSlice";
+import { apiGetFilteredProducts } from "../Services/productServices";
 export default function Home() {
   const products = useLoaderData() || [];
   const [filters, setFilters] = useState({
@@ -56,22 +57,40 @@ export default function Home() {
     });
   };
 
-  // Apply filtering logic
-  const filtered = useMemo(() => {
-    return products.filter((p) => {
-       // hide seller’s own products
-      if (user && p.seller && p.seller.id === user.id) {
-        return false;
-      }
-      const matchName = p.name?.toLowerCase().includes(filters.query.toLowerCase());
-      const matchType = !filters.type || p.productType === filters.type;
-      const matchColor = !filters.color || p.color === filters.color;
-      const matchMin = !filters.minPrice || p.price >= Number(filters.minPrice);
-      const matchMax = !filters.maxPrice || p.price <= Number(filters.maxPrice);
-      return matchName && matchType && matchColor && matchMin && matchMax;
-    });
-  }, [products, filters,user]);
+  // // Apply filtering logic
+  // const filtered = useMemo(() => {
+  //   return products.filter((p) => {
+  //      // hide seller’s own products
+  //     if (user && p.seller && p.seller.id === user.id) {
+  //       return false;
+  //     }
+  //     const matchName = p.name?.toLowerCase().includes(filters.query.toLowerCase());
+  //     const matchType = !filters.type || p.productType === filters.type;
+  //     const matchColor = !filters.color || p.color === filters.color;
+  //     const matchMin = !filters.minPrice || p.price >= Number(filters.minPrice);
+  //     const matchMax = !filters.maxPrice || p.price <= Number(filters.maxPrice);
+  //     return matchName && matchType && matchColor && matchMin && matchMax;
+  //   });
+  // }, [products, filters,user]);
 
+
+const [filtered, setFiltered] = useState(products);
+
+useEffect(() => {
+  const fetchFiltered = async () => {
+    try {
+      const resp = await apiGetFilteredProducts(filters);
+      // hide seller’s own products (frontend side)
+      const visible = resp.filter((p) => !(user && p.seller && p.seller.id === user.id));
+      setFiltered(visible);
+    } catch (err) {
+      console.error("Filter fetch failed:", err);
+      toast.error("Failed to load filtered products");
+    }
+  };
+
+  fetchFiltered();
+}, [filters, user]);
   return (
     <section className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-blue-100 text-gray-800 font-sans">
       <Navbar />

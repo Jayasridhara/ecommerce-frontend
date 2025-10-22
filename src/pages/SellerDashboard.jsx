@@ -41,7 +41,7 @@ export default function SellerDashboard() {
   });
   const [editingProduct, setEditingProduct] = useState(null);
   const [showReport, setShowReport] = useState(false);
-
+ const [showOutOfStock, setShowOutOfStock] = useState(false);
   useEffect(() => {
     loadProducts();
   }, []);
@@ -60,40 +60,40 @@ export default function SellerDashboard() {
     }
   };
 
-  const handleFilterChange = async (e) => {
-    const { name, value } = e.target;
-    const updatedFilters = {
-      ...filters,
-      [name]: value === "" ? undefined : value,
-    };
-    setFilters(updatedFilters);
+const handleFilterChange = async (e) => {
+  const { name, value } = e.target;
+  const updatedFilters = {
+    ...filters,
+    [name]: value === "" ? undefined : value,
+  };
+  setFilters(updatedFilters);
 
+  try {
     const isFilterEmpty =
       !updatedFilters.type &&
       !updatedFilters.color &&
-      (updatedFilters.minPrice == null) &&
-      (updatedFilters.maxPrice == null);
+      (updatedFilters.minPrice == null || updatedFilters.minPrice === "") &&
+      (updatedFilters.maxPrice == null || updatedFilters.maxPrice === "") &&
+      !showOutOfStock;
 
-    try {
-     if (isFilterEmpty) {
-          await loadProducts();
-        } else {
-          // apply filtering on the already loaded products
-          const filtered = products.filter(p => {
-            let ok = true;
-            if (updatedFilters.type) ok = ok && p.productType === updatedFilters.type;
-            if (updatedFilters.color) ok = ok && p.color === updatedFilters.color;
-            if (updatedFilters.minPrice != null) ok = ok && p.price >= updatedFilters.minPrice;
-            if (updatedFilters.maxPrice != null) ok = ok && p.price <= updatedFilters.maxPrice;
-            return ok;
-          });
-          setProducts(filtered);
-  }
-    } catch (error) {
-      console.error("Error applying filters:", error);
+    if (isFilterEmpty) {
+      await loadProducts();
+      return;
     }
-  };
 
+    // ✅ include outOfStock filter
+    const data = await getFilteredProducts({
+      ...updatedFilters,
+      outOfStock: showOutOfStock,
+    });
+
+    const productArray = Array.isArray(data) ? data : [];
+    setProducts(productArray);
+  } catch (error) {
+    console.error("Error applying filters:", error);
+    toast.error("Failed to apply filters");
+  }
+};
   const handleAddOrUpdate = async () => {
     try {
       const payload = {
@@ -208,9 +208,43 @@ const checkSellerDetails = async () => {
       </header>
 
       <div className="bg-white shadow-sm mx-4 sm:mx-8 mt-6 rounded-xl p-4 flex flex-col sm:flex-row flex-wrap justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-2 text-gray-600 font-medium w-full sm:w-auto">
+       <div className="flex items-center gap-2 text-gray-600 font-medium w-full sm:w-auto">
           <SlidersHorizontal size={18} />
           Filters
+
+        <button
+          type="button"
+          onClick={async () => {
+            const newState = !showOutOfStock;
+            setShowOutOfStock(newState);
+
+            if (newState) {
+              // 🧠 Show only products with stock <= 0
+              try {
+                const data = await fetchSellerProducts();
+                const productArray = Array.isArray(data) ? data : [];
+                const outOfStockProducts = productArray.filter(
+                  (p) => Number(p.stock) <= 0
+                );
+                setProducts(outOfStockProducts);
+              } catch (err) {
+                console.error("Error filtering out of stock:", err);
+                toast.error("Failed to load out-of-stock products");
+              }
+            } else {
+              // 🧹 Reset back to all products
+              await loadProducts();
+            }
+          }}
+          className={`ml-2 px-4 py-2 rounded-lg shadow transition ${
+            showOutOfStock
+              ? "bg-red-600 text-white hover:bg-red-700"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
+        >
+          Out of Stock
+        </button>
+
           <button
             className="ml-auto sm:ml-0 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow transition"
             onClick={() => {
@@ -220,12 +254,14 @@ const checkSellerDetails = async () => {
                 minPrice: undefined,
                 maxPrice: undefined,
               });
+              setShowOutOfStock(false);
               loadProducts();
             }}
           >
             Clear Filters
           </button>
         </div>
+
 
         <select
           name="type"

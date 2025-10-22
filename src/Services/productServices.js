@@ -45,8 +45,27 @@ export const fetchProductById = async (id) => {
 
 
 export const getFilteredProducts = async (filters) => {
-  const response = await instance.get(`/products/filter`, { params: filters });
-  return response.data;
+  const params = new URLSearchParams();
+
+  if (filters.type) params.append("type", filters.type);
+  if (filters.color) params.append("color", filters.color);
+  if (filters.minPrice) params.append("minPrice", filters.minPrice);
+  if (filters.maxPrice) params.append("maxPrice", filters.maxPrice);
+
+  const { data } = await protectedInstance.get(`/products/filter?${params}`);
+  return data;
+};
+
+
+export const apiGetFilteredProducts = async (filters) => {
+  const params = new URLSearchParams();
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) params.append(key, value);
+  });
+
+  const resp = await protectedInstance.get(`/products/allproductfilter?${params.toString()}`);
+  return resp.data;
 };
 
 
@@ -57,7 +76,7 @@ export const uploadProductImage = async (productId, imageFile) => {
     `/products/${productId}/upload-image`,
     form,
     {
-      headers: {
+      headers: {  
         // Let browser set boundary automatically
         "Content-Type": "multipart/form-data",
       }

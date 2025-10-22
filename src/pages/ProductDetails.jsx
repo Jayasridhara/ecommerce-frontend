@@ -4,12 +4,12 @@ import { addToWishlist, removeFromWishlist } from "../redux/wishlistSlice";
 import { Heart, Star } from "lucide-react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import Navbar from "../components/Navbar";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AlertModal from "./AlertModal";
 import { addOrUpdateReview} from "../Services/productServices";
 import { apiAddToCart } from "../Services/cartServices";
-import { setCart } from "../redux/cartSlice";
+import { setCart } from "../redux/cartSlice";   
 import { getMe } from "../Services/authServices";
 import { createCheckoutSession } from "../Services/paymentService";
 import { loadStripe } from "@stripe/stripe-js";
@@ -35,7 +35,7 @@ export default function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const [showShippingModal, setShowShippingModal] = useState(false);
   const [userAddress, setUserAddress] = useState(null);
-
+  const reviewTextareaRef = useRef(null);
   // normalize wishlist (flat array of product objects or id strings)
   const sanitizedWishlist = Array.isArray(wishlist)
     ? wishlist.flatMap((p) => (Array.isArray(p) ? p : p ? [p] : []))
@@ -63,14 +63,26 @@ console.log("Is in wishlist:", isInWishlist);
     }
   };
 
-  const handleRating = (value) => {
-    if (!isAuthenticated) {
-      setModalMessage("Please log in to rate ⭐");
-      setShowModal(true);
-      return;
-    }
-    setRating(value);
-  };
+      const handleRating = (value) => {
+      if (!isAuthenticated) {
+        setModalMessage("Please log in to rate ⭐");
+        setShowModal(true);
+        return;
+      }
+
+      setRating(value);
+
+      // 🧠 Show alert to guide user to write review
+      toast.success("Now write your review below 💬");
+
+      // 🕒 Slight delay to ensure modal appears before focusing
+      setTimeout(() => {
+        if (reviewTextareaRef.current) {
+          reviewTextareaRef.current.focus();
+        }
+      }, 400);
+    };
+
 
   const handleReviewSubmit = async () => {
     if (!isAuthenticated) {
@@ -348,6 +360,7 @@ console.log("Is in wishlist:", isInWishlist);
           </div>
 
           <textarea
+            ref={reviewTextareaRef}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Write your review..."
