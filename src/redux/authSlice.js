@@ -1,13 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 const storedUser = JSON.parse(localStorage.getItem("user"));
+const storedisAuthenticated= JSON.parse(localStorage.getItem("isAuthenticated"));
+const storedisSeller = JSON.parse(localStorage.getItem("isSeller"));
 const authSlice = createSlice({
     name: "auth",
     initialState: {
         user: storedUser || null,
-        isAuthenticated: false,
+        isAuthenticated:storedisAuthenticated || false,
         isLoading: false,
         error: null,
-        isSeller: false,
+        isSeller: storedisSeller||false,
         setSwitcher: false
     },
     reducers: {
@@ -15,6 +17,8 @@ const authSlice = createSlice({
             state.user = action.payload;
             state.isAuthenticated = true;
             state.error = null;
+            localStorage.setItem("isAuthenticated", JSON.stringify(action.payload));
+            localStorage.setItem("isSeller", JSON.stringify(action.payload));
             localStorage.setItem("user", JSON.stringify(action.payload));
         },
         clearUser: (state) => {
@@ -35,10 +39,15 @@ const authSlice = createSlice({
             if (state.user) {
                 state.user = { ...state.user, ...action.payload };
                 localStorage.setItem("user", JSON.stringify(state.user)); 
+                localStorage.setItem("isAuthenticated", JSON.stringify(action.payload));
+                localStorage.setItem("isSeller", JSON.stringify(action.payload));
             }
         },
         setIsSeller: (state, action) => {
             state.isSeller = action.payload;
+            localStorage.setItem("user", JSON.stringify(state.user));
+            localStorage.setItem("isAuthenticated", JSON.stringify(action.payload));
+            localStorage.setItem("isSeller", JSON.stringify(action.payload)); 
         },
         setSwitcher: (state, action) => {
             state.isSellerSwitched = action.payload;

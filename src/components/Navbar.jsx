@@ -7,6 +7,7 @@ import { clearUser, setIsSeller } from "../redux/authSlice";
 import { clearCart, fetchCart } from "../redux/cartSlice";
 import { clearWishlist, fetchWishlist } from "../redux/wishlistSlice";
 import { getMyOrders } from "../Services/orderServices";
+import { use } from "react";
 
 export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
@@ -21,6 +22,7 @@ export default function Navbar() {
   const wishlistCount = useSelector((state) => state.wishlist.items.length || 0);
   const [orders, setOrders] = useState([]);
 
+  console.log("user",user)
   useEffect(() => {
     if (isAuthenticated)
        dispatch(fetchCart());
@@ -206,6 +208,7 @@ export default function Navbar() {
               >
                 <span className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-lg border border-blue-300">
                   {user?.name?.charAt(0).toUpperCase()}
+                 
                 </span>
                 <svg
                   className="w-4 h-4 text-gray-700"
@@ -219,20 +222,21 @@ export default function Navbar() {
               </button>
 
               {profileOpen && (
-                <div className="absolute right-0 mt-3 w-52 bg-white border border-gray-200 rounded-2xl shadow-xl py-2 z-50">
-                  <div className="px-4 py-2 text-gray-700 font-semibold border-b border-gray-100">
-                    {user?.name}
+                <div className="absolute right-0 mt-3 w-52 bg-white border border-gray-200 rounded-2xl shadow-xl py-2 z-50 text-center">
+                  <div className="px-4 py-2 text-gray-700 font-semibold border-b border-gray-100 ">
+                      <p className="font-semibold">{user?.name}</p>
+              <        p className="text-sm text-gray-500">{user?.role}</p>
                   </div>
                   <Link
                     to="/profile"
                     onClick={() => setProfileOpen(false)}
                     className="block px-4 py-2 text-gray-600 hover:bg-blue-50 transition"
-                  >
+                  > 
                     Profile
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 transition"
+                    className="block w-full  px-4 py-2 text-red-500 hover:bg-red-50 transition text-center"
                   >
                     Logout
                   </button>
