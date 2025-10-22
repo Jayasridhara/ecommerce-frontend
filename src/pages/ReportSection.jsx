@@ -70,7 +70,7 @@ export default function ReportSection({ onClose }) {
               <tr className="bg-blue-50 border-b">
                 <th className="py-2 px-4 text-left">Order ID</th>
                 <th className="py-2 px-4 text-left">Product</th>
-                <th className="py-2 px-4 text-left">QuantityXPerUnit</th>
+                <th className="py-2 px-4 text-left">Quantity<br/>XPerUnit</th>
                 <th className="py-2 px-4 text-left">Image</th>
                 <th className="py-2 px-4 text-left">Buyer Name</th>
                 <th className="py-2 px-4 text-left">Amount</th>

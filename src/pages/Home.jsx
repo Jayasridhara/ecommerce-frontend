@@ -6,6 +6,7 @@ import Navbar from "../components/Navbar";
 import { useMemo, useState, useEffect } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 import { toast } from "react-toastify";
+import { setUser } from "../redux/authSlice";
 export default function Home() {
   const products = useLoaderData() || [];
   const [filters, setFilters] = useState({
@@ -24,7 +25,12 @@ export default function Home() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {user,isAuthenticated } = useSelector((state) => state.auth);
+
   console.log("User in Home:", user);
+   
+   if (user) {
+      dispatch(setUser(user));
+    }
   // Load available filters from products
   useEffect(() => {
     const uniqueTypes = [...new Set(products.map((p) => p.productType).filter(Boolean))];
