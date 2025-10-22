@@ -75,12 +75,20 @@ export default function SellerDashboard() {
       (updatedFilters.maxPrice == null);
 
     try {
-      if (isFilterEmpty) {
-        await loadProducts();
-      } else {
-        const res = await getFilteredProducts(updatedFilters);
-        setProducts(Array.isArray(res.products) ? res.products : []);
-      }
+     if (isFilterEmpty) {
+          await loadProducts();
+        } else {
+          // apply filtering on the already loaded products
+          const filtered = products.filter(p => {
+            let ok = true;
+            if (updatedFilters.type) ok = ok && p.productType === updatedFilters.type;
+            if (updatedFilters.color) ok = ok && p.color === updatedFilters.color;
+            if (updatedFilters.minPrice != null) ok = ok && p.price >= updatedFilters.minPrice;
+            if (updatedFilters.maxPrice != null) ok = ok && p.price <= updatedFilters.maxPrice;
+            return ok;
+          });
+          setProducts(filtered);
+  }
     } catch (error) {
       console.error("Error applying filters:", error);
     }

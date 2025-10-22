@@ -56,8 +56,8 @@ export default function ProductFormModal({
     if (!color.trim()) return "Color is required.";
     if (!productType || productType.trim() === "")
        return "Select a product type.";
-    if (productType === "Other" && !productTypeOther.trim())
-      return "Please enter a custom product type.";
+    // if (productType === "Other" && !productTypeOther.trim())
+    //   return "Please enter a custom product type.";
     if (!description.trim()) return "Description cannot be empty.";
     if (!image) return "Product image is required.";
     if (stock === "" || Number(stock) < 0)
@@ -152,13 +152,14 @@ export default function ProductFormModal({
           >
             <option value="">Select a product type</option>
             <option value="Home Accessories">Home Accessories</option>
+            <option value="Electonics">Electonics</option>
             <option value="Men's Dress">Men's Dress</option>
             <option value="Women's Dress">Women's Dress</option>
-            <option value="Other">Other</option>
+            {/* <option value="Other">Other</option> */}
           </select>
         </div>
 
-          {formData.productType === "Other" && (
+          {/* {formData.productType === "Other" && (
             <div>
               <label className="block font-medium mb-1">Other Type *</label>
               <input
@@ -170,7 +171,7 @@ export default function ProductFormModal({
                 required
               />
             </div>
-          )}
+          )} */}
 
           {/* Description */}
           <div>
