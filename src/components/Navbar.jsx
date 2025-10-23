@@ -74,16 +74,19 @@ const [warningShown, setWarningShown] = useState(false);
   }, [isAuthenticated, user?.id, token]);
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const data = await getMyOrders();
-        setOrders(data);
-      } catch (err) {
-        console.error("Error fetching orders:", err);
-      }
-    };
-    fetchOrders();
-  }, []);
+    if (isAuthenticated) {
+      const fetchOrders = async () => {
+        try {
+          const data = await getMyOrders(); // Ensure getMyOrders is defined and available
+          setOrders(data);
+        } catch (err) {
+          console.error("Error fetching orders:", err);
+        }
+      };
+
+      fetchOrders();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
