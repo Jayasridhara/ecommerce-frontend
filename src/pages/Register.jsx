@@ -50,7 +50,7 @@ const Register = () => {
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || error.message || "Registration failed";
-      toast.error(errorMessage);
+      toast.error(errorMessage);  
     } finally {
       setLoading(false);
     }
@@ -169,9 +169,7 @@ const Register = () => {
       </motion.div>
 
       {/* Footer */}
-      <footer className="text-gray-500 text-sm mt-10">
-        © 2025 ShopVerse — All rights reserved
-      </footer>
+      
     </section>
   );
 };

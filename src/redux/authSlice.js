@@ -10,7 +10,7 @@ const authSlice = createSlice({
         isLoading: false,
         error: null,
         isSeller: storedisSeller||false,
-        setSwitcher: false,
+        
         
     },
     reducers: {
