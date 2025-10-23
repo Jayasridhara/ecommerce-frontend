@@ -26,11 +26,13 @@ const authSlice = createSlice({
         clearUser: (state) => {
             state.user = null;
             state.isAuthenticated = false;
+            state.isSeller = false;
             state.error = null;
-            localStorage.removeItem("user"); 
-             localStorage.removeItem("token");
-             localStorage.removeItem("isAuthenticated");
-              localStorage.removeItem("isSeller");
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            localStorage.removeItem("tokenExpiry");
+            localStorage.removeItem("isAuthenticated");
+            localStorage.removeItem("isSeller");
              
         },
         setLoading: (state, action) => {
@@ -55,12 +57,10 @@ const authSlice = createSlice({
             localStorage.setItem("isAuthenticated", JSON.stringify(action.payload));
             localStorage.setItem("isSeller", JSON.stringify(action.payload)); 
         },     
-        setSwitcher: (state, action) => {
-            state.isSellerSwitched = action.payload;
-        }
+       
     }
 })
 
-export const { setUser, clearUser, setLoading, setError, updateUser, setIsSeller, setSwitcher } = authSlice.actions;
+export const { setUser, clearUser, setLoading, setError, updateUser, setIsSeller } = authSlice.actions;
 
 export default authSlice.reducer;

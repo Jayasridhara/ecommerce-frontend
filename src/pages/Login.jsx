@@ -1,5 +1,5 @@
 import { loginUser } from "../Services/authServices";
-import { setUser, setIsSeller, setSwitcher } from "../redux/authSlice";
+import { setUser, setIsSeller } from "../redux/authSlice";
 import { ShoppingCart } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
@@ -24,9 +24,11 @@ const Login = () => {
       dispatch(setUser(response.user));
       
       localStorage.setItem("token", response.token);
+     const expiryTime = Date.now() + 6 * 60 * 60 * 1000; // 6 hours
+    localStorage.setItem("tokenExpiry", expiryTime);
       if (response.user.role !== "buyer") {
         dispatch(setIsSeller(true));
-        dispatch(setSwitcher(true));
+      
       }
       toast.success(response.message);
       navigate("/");
@@ -140,7 +142,7 @@ const Login = () => {
         </p>
       </motion.div>
 
-      {/* Footer */}
+     
       
     </section>
   );

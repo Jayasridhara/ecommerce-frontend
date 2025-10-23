@@ -8,6 +8,7 @@ import { clearCart, fetchCart } from "../redux/cartSlice";
 import { clearWishlist, fetchWishlist } from "../redux/wishlistSlice";
 import { getMyOrders } from "../Services/orderServices";
 import { use } from "react";
+import { toast } from "react-toastify";
 
 export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
@@ -22,6 +23,43 @@ export default function Navbar() {
   const cartCount = useSelector((state) => state.cart.items.length || 0);
   const wishlistCount = useSelector((state) => state.wishlist.items.length || 0);
   const [orders, setOrders] = useState([]);
+  const [timeLeft, setTimeLeft] = useState(null);
+  const [showTimer, setShowTimer] = useState(false);
+const [warningShown, setWarningShown] = useState(false);
+  useEffect(() => {
+  const tokenExpiry = localStorage.getItem("tokenExpiry");
+  if (!tokenExpiry) return;
+
+  const updateTime = () => {
+    const diff = Number(tokenExpiry) - Date.now();
+
+    // Session expired → auto logout
+    if (diff <= 0) {
+      handleLogout();
+      return;
+    }
+
+    // If less than 1 min left, show timer
+    if (diff <= 60 * 1000) {
+      setShowTimer(true);
+      const m = Math.floor(diff / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setTimeLeft(`${m}:${s < 10 ? "0" + s : s}s`);
+
+      if (!warningShown) {
+        toast.warn("⚠️ Your session will expire in 1 minute. Please save your work or re-login soon!")
+        alert("⚠️ Your session will expire in 1 minute. Please save your work or re-login soon!");
+        setWarningShown(true);
+      }
+    } else {
+      setShowTimer(false);
+    }
+  };
+
+  updateTime();
+  const timer = setInterval(updateTime, 1000);
+  return () => clearInterval(timer);
+}, [warningShown]);
 
   console.log("user",user)
   useEffect(() => {
@@ -225,6 +263,11 @@ export default function Navbar() {
                 onClick={() => setProfileOpen((prev) => !prev)}
                 className="flex items-center gap-2 focus:outline-none"
               >
+                {showTimer && (
+                  <span className="text-xs text-gray-500 ml-2">
+                    ⏳ {timeLeft} left
+                  </span>
+                )}
                 <span className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-lg border border-blue-300">
                   {user?.name?.charAt(0).toUpperCase()}
                  
