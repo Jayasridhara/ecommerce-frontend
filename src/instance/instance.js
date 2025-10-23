@@ -3,7 +3,7 @@ import axios from "axios";
 
 
 const baseURL = "https://ecommerce-backend-1-ldht.onrender.com/api/v1";
-//add changes
+//hanges
 const instance = axios.create({
     baseURL,
     timeout: 10000,
