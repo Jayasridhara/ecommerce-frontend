@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams, Link } from 'react-router';  // ensure correct router import
 import instance from '../instance/instance';
-
-
+import { motion } from "framer-motion";
+import { ShoppingCart } from "lucide-react";
 
 const ResetPassword = () => {
     const { token } = useParams();
@@ -15,15 +15,11 @@ const ResetPassword = () => {
     const [loading, setLoading] = useState(false);
     const [isValidToken, setIsValidToken] = useState(false);
     const [tokenCheckLoading, setTokenCheckLoading] = useState(true);
-    console.log(token);
-    // Effect to verify token on component mount
+
     useEffect(() => {
         const verifyToken = async () => {
             try {
-                // You could add a GET endpoint to verify, or let the POST handle it
-                // For simplicity, we'll assume the POST will tell us if it's invalid.
-                // In a real app, you might make a GET request here for better UX.
-                setIsValidToken(true); // Optimistically assume valid for now, POST will confirm
+                setIsValidToken(true);
             } catch (err) {
                 setError('Invalid or expired password reset link. Please request a new one.');
                 setIsValidToken(false);
@@ -58,7 +54,7 @@ const ResetPassword = () => {
             setPassword('');
             setConfirmPassword('');
             setTimeout(() => {
-                navigate('/'); // Redirect to home/login after successful reset
+                navigate('/');
             }, 3000);
         } catch (err) {
             setError(err.response?.data?.message || 'Something went wrong. Please try again.');
@@ -69,81 +65,118 @@ const ResetPassword = () => {
 
     if (tokenCheckLoading) {
         return (
-            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '70vh' }}>
-                <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </div>
+            <div className="flex justify-center items-center min-h-[70vh] px-4">
+              <div className="animate-spin border-4 border-blue-600 border-t-transparent rounded-full h-12 w-12" role="status">
+                <span className="sr-only">Loading...</span>
+              </div>
             </div>
         );
     }
 
     if (!isValidToken) {
         return (
-            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '70vh' }}>
-                <div className="card p-4 shadow-sm w-100 text-center" style={{ maxWidth: '500px' }}>
-                    <h2 className="mb-4 text-danger"><i className="fas fa-exclamation-triangle me-2"></i>Invalid Link</h2>
-                    <p className="lead">{error || 'This password reset link is invalid or has expired.'}</p>
-                    <p>Please <a href="/forgot-password">request a new password reset link</a>.</p>
+            <div className="flex justify-center items-center min-h-[70vh] px-4">
+                <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg text-center">
+                  <h2 className="mb-4 text-2xl font-semibold text-red-600">Invalid Link</h2>
+                  <p className="text-gray-700 mb-2">{error || 'This password reset link is invalid or has expired.'}</p>
+                  <p className="text-blue-600"><Link to="/forgot-password">Request a new password reset link</Link></p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '70vh' }}>
-            <div className="card p-4 shadow-sm w-100" style={{ maxWidth: '400px' }}>
-                <h2 className="mb-4 text-center">Reset Password</h2>
-                <p className="text-center text-muted">Enter your new password below.</p>
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-3">
-                        <label htmlFor="password" className="form-label">New Password</label>
-                        <div className="input-group">
-                            <span className="input-group-text"><i className="fas fa-lock"></i></span>
-                            <input
-                                type="password"
-                                className="form-control"
-                                id="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Enter new password"
-                                required
-                                minLength="6"
-                            />
-                        </div>
-                        <div className="form-text">Must be at least 6 characters long.</div>
-                    </div>
-                    <div className="mb-3">
-                        <label htmlFor="confirmPassword" className="form-label">Confirm New Password</label>
-                        <div className="input-group">
-                            <span className="input-group-text"><i className="fas fa-lock"></i></span>
-                            <input
-                                type="password"
-                                className="form-control"
-                                id="confirmPassword"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                placeholder="Confirm new password"
-                                required
-                            />
-                        </div>
-                    </div>
-                    {message && <div className="alert alert-success mt-3">{message}</div>}
-                    {error && <div className="alert alert-danger mt-3">{error}</div>}
-                    <button type="submit" className="btn btn-primary w-100 mt-3" disabled={loading}>
-                        {loading ? (
-                            <>
-                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                Resetting...
-                            </>
-                        ) : (
-                            <>
-                                <i className="fas fa-sync-alt me-2"></i>Reset Password
-                            </>
-                        )}
-                    </button>
-                </form>
+        <>
+          {/* Logo Link */}
+          <div className="flex justify-center mt-6 mb-6">
+            <Link to="/" className="flex items-center space-x-3 no-underline">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                className="flex items-center gap-2"
+              >
+                <ShoppingCart className="w-6 h-6 text-blue-600" />
+                <span className="font-extrabold text-xl text-gray-800">ShopVerse</span>
+              </motion.div>
+            </Link>
+          </div>
+
+          <div className="flex justify-center items-start min-h-[70vh] px-4">
+            <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
+              <h2 className="mb-4 text-center text-2xl font-semibold text-gray-900">Reset Password</h2>
+              <p className="text-center text-gray-500 mb-6">Enter your new password below.</p>
+
+              <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                  <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-700">New Password</label>
+                  <div className="flex items-center border border-gray-300 rounded-md focus-within:border-blue-500">
+                    <span className="px-3 text-gray-500">
+                      <i className="fas fa-lock"></i>
+                    </span>
+                    <input
+                      type="password"
+                      id="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter new password"
+                      required
+                      minLength={6}
+                      className="w-full py-2 px-3 text-gray-700 placeholder-gray-400 focus:outline-none rounded-r-md"
+                    />
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">Must be at least 6 characters long.</div>
+                </div>
+
+                <div className="mb-4">
+                  <label htmlFor="confirmPassword" className="block mb-2 text-sm font-medium text-gray-700">Confirm New Password</label>
+                  <div className="flex items-center border border-gray-300 rounded-md focus-within:border-blue-500">
+                    <span className="px-3 text-gray-500">
+                      <i className="fas fa-lock"></i>
+                    </span>
+                    <input
+                      type="password"
+                      id="confirmPassword"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm new password"
+                      required
+                      className="w-full py-2 px-3 text-gray-700 placeholder-gray-400 focus:outline-none rounded-r-md"
+                    />
+                  </div>
+                </div>
+
+                {message && (
+                  <div className="mb-4 text-green-700 bg-green-100 border border-green-200 rounded p-3 text-sm">
+                    {message}
+                  </div>
+                )}
+                {error && (
+                  <div className="mb-4 text-red-700 bg-red-100 border border-red-200 rounded p-3 text-sm">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? (
+                    <>
+                      <span className="animate-spin inline-block mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full" role="status" aria-hidden="true"></span>
+                      Resetting...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-sync-alt mr-2"></i>
+                      Reset Password
+                    </>
+                  )}
+                </button>
+              </form>
             </div>
-        </div>
+          </div>
+        </>
     );
 };
 

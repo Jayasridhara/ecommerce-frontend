@@ -5,6 +5,7 @@ import { FiCheckCircle, FiXCircle, FiClock } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../redux/authSlice";
+import { fetchCart } from "../redux/cartSlice";
 
 export default function CheckoutSuccess() {
   const [searchParams] = useSearchParams();
@@ -18,10 +19,13 @@ export default function CheckoutSuccess() {
 
   useEffect(() => {
     if (user) dispatch(setUser(user));
+
+    dispatch(fetchCart())
+
   }, [user, dispatch]);
 
   useEffect(() => {
-    if (!sessionId) {
+    if (!sessionId) {     
       setError("No session ID provided");
       setLoading(false);
       return;

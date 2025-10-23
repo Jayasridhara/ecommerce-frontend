@@ -10,7 +10,8 @@ const authSlice = createSlice({
         isLoading: false,
         error: null,
         isSeller: storedisSeller||false,
-        setSwitcher: false
+        setSwitcher: false,
+        
     },
     reducers: {
         setUser: (state, action) => {
@@ -20,6 +21,7 @@ const authSlice = createSlice({
             localStorage.setItem("isAuthenticated", JSON.stringify(action.payload));
             localStorage.setItem("isSeller", JSON.stringify(action.payload));
             localStorage.setItem("user", JSON.stringify(action.payload));
+            
         },
         clearUser: (state) => {
             state.user = null;
@@ -29,6 +31,7 @@ const authSlice = createSlice({
              localStorage.removeItem("token");
              localStorage.removeItem("isAuthenticated");
               localStorage.removeItem("isSeller");
+             
         },
         setLoading: (state, action) => {
             state.isLoading = action.payload;
@@ -43,6 +46,7 @@ const authSlice = createSlice({
                 localStorage.setItem("user", JSON.stringify(state.user)); 
                 localStorage.setItem("isAuthenticated", JSON.stringify(action.payload));
                 localStorage.setItem("isSeller", JSON.stringify(action.payload));
+               
             }
         },
         setIsSeller: (state, action) => {
@@ -50,7 +54,7 @@ const authSlice = createSlice({
             localStorage.setItem("user", JSON.stringify(state.user));
             localStorage.setItem("isAuthenticated", JSON.stringify(action.payload));
             localStorage.setItem("isSeller", JSON.stringify(action.payload)); 
-        },
+        },     
         setSwitcher: (state, action) => {
             state.isSellerSwitched = action.payload;
         }

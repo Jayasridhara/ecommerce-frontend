@@ -20,6 +20,9 @@ export default function AppLayout() {
     <>
    
       <Outlet />
+      <footer className="text-center py-6 border-t border-gray-200 text-gray-500 text-sm bg-white">
+        © 2025 ShopVerse — All Rights Reserved
+      </footer>
     </>
   );
 }

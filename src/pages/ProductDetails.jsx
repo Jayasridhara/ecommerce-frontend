@@ -1,5 +1,4 @@
 import { addToCart, fetchCart } from "../redux/cartSlice";
-import data from "../Dataset/product";
 import { addToWishlist, removeFromWishlist } from "../redux/wishlistSlice";
 import { Heart, Star } from "lucide-react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
@@ -25,6 +24,7 @@ export default function ProductDetails() {
 
   const { items: wishlist } = useSelector((state) => state.wishlist);
   const { isAuthenticated, user, token } = useSelector((state) => state.auth);
+  const [isBuyNow, setIsBuyNow] = useState(false);
 
   const [product, setProduct] = useState(initialProduct);
   const [reviews, setReviews] = useState(initialReviews);
@@ -146,7 +146,8 @@ console.log("Is in wishlist:", isInWishlist);
       await proceedToCheckout(addr);
     } catch (err) {
       console.error("Buy Now failed:", err);
-      setModalMessage("Buy Now failed. Please try again ❌");
+       toast.error(err.response?.data?.message || "Buy Now failed");
+      setModalMessage("Buy Now failed. Please try again ❌".err);
       setShowModal(true);
     }
   };
@@ -155,7 +156,7 @@ console.log("Is in wishlist:", isInWishlist);
   const proceedToCheckout = async (addr) => {
     setModalMessage("Preparing checkout...");
     setShowModal(true);
-
+  
     const payloadItems = [
       {
         id: product._id,
@@ -173,7 +174,7 @@ console.log("Is in wishlist:", isInWishlist);
     ];
 
     const orderId = product._id + "-buynow-" + Date.now();
-    const data = await createCheckoutSession(payloadItems, user._id, orderId);
+    const data = await createCheckoutSession(payloadItems, user._id, orderId,isBuyNow);
 
     if (data.url) {
       window.location.href = data.url;

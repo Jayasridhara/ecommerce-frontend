@@ -17,6 +17,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
+  const hideNavIcons = currentPath === "/checkout-success";
   const { isAuthenticated, user, isSeller, token } = useSelector((state) => state.auth);
   const cartCount = useSelector((state) => state.cart.items.length || 0);
   const wishlistCount = useSelector((state) => state.wishlist.items.length || 0);
@@ -84,7 +85,15 @@ export default function Navbar() {
 
           {/* Mobile Icons: Heart & Cart */}
           <div className="flex items-center gap-3 md:hidden">
-            <Link to="/wishlist" className="relative">
+            { !hideNavIcons && (
+             <Link
+              to={wishlistCount > 0 ? "/wishlist" : "#"}
+              className={`relative ${
+                wishlistCount === 0
+                  ? "opacity-50 cursor-not-allowed pointer-events-none"
+                  : "hover:scale-105 transition-transform"
+              }`}
+            >
               <Heart className="w-6 h-6 text-pink-500" />
               {wishlistCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-pink-500 text-white text-xs px-2 rounded-full">
@@ -92,7 +101,17 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
-            <Link to="/cart" className="relative">
+            )}
+            {/* Cart Icon */}
+            { !hideNavIcons && (
+            <Link
+              to={cartCount > 0 ? "/cart" : "#"}
+              className={`relative ${
+                cartCount === 0
+                  ? "opacity-50 cursor-not-allowed pointer-events-none"
+                  : "hover:scale-105 transition-transform"
+              }`}
+            >
               <ShoppingCart className="w-6 h-6 text-blue-600" />
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 rounded-full">
@@ -100,7 +119,7 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
-
+            )}
             {/* Hamburger */}
             <button
               onClick={() => setMobileMenuOpen((prev) => !prev)}
@@ -131,18 +150,18 @@ export default function Navbar() {
             </button>
           )}
 
-          {isAuthenticated && location.pathname !== "/orders" && (
+          {!hideNavIcons && isAuthenticated && location.pathname !== "/orders" && (
             orders.length > 0 ? (
               <Link
                 to="/orders"
-                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:opacity-90 transition-all text-decroration-none"
+                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:opacity-90 transition-all text-decroration-none no-underline"
               >
                 My Orders
               </Link>
             ) : (
               <button
                 disabled
-                className="px-4 py-2 rounded-full bg-gray-200 text-gray-500 font-medium cursor-not-allowed"
+                className="px-4 py-2 rounded-full bg-gray-200 text-gray-500 font-medium cursor-not-allowed no-underline"
               >
                 My Orders
               </button>
@@ -150,7 +169,7 @@ export default function Navbar() {
           )}
 
           {/* Wishlist Icon */}
-          {!isSellerPage && (
+          {!isSellerPage && !hideNavIcons && (
             <Link
               to="/wishlist"
               className={`relative hover:scale-105 transition-transform
@@ -171,7 +190,7 @@ export default function Navbar() {
           )}
 
           {/* Cart Icon */}
-          {!isSellerPage && (
+          {!hideNavIcons && !isSellerPage && (
             <Link
               to="/cart"
               className={`relative hover:scale-105 transition-transform
@@ -193,10 +212,10 @@ export default function Navbar() {
 
           {!isAuthenticated ? (
             <>
-              <Link to="/login" className="text-gray-700 font-medium hover:text-blue-600 transition">
+              <Link to="/login" className="text-gray-700 font-medium hover:text-blue-600 transition no-underline">
                 Login
               </Link>
-              <Link to="/register" className="bg-blue-500 text-white font-semibold px-5 py-2 rounded-full hover:bg-blue-600 transition">
+              <Link to="/register" className="bg-blue-500 text-white font-semibold px-5 py-2 rounded-full hover:bg-blue-600 transition no-underline">
                 Register
               </Link>
             </>
@@ -230,7 +249,7 @@ export default function Navbar() {
                   <Link
                     to="/profile"
                     onClick={() => setProfileOpen(false)}
-                    className="block px-4 py-2 text-gray-600 hover:bg-blue-50 transition"
+                    className="block px-4 py-2 text-gray-600 hover:bg-blue-50 transition no-underline"
                   > 
                     Profile
                   </Link>
@@ -254,14 +273,14 @@ export default function Navbar() {
           <Link
             to="/login"
             onClick={() => setMobileMenuOpen(false)}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg text-center hover:bg-blue-600"
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg text-center hover:bg-blue-600 no-underline"
           >
             Login
           </Link>
           <Link
             to="/register"
             onClick={() => setMobileMenuOpen(false)}
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg text-center hover:bg-gray-300"
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg text-center hover:bg-gray-300 no-underline"
           >
             Register
           </Link>
@@ -280,13 +299,13 @@ export default function Navbar() {
               <Link
                 to="/profile"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-4 py-2 bg-gray-100 rounded-lg text-center hover:bg-gray-200 no-underline"
+                className="px-4 py-2 bg-gray-100 rounded-lg text-center hover:bg-gray-200  text-decoration-none"
               >
                 Profile
               </Link>
             )}
 
-            {isSeller && !isSellerPage && (
+            {isAuthenticated && user?.role === "seller" && isSeller && !isSellerPage && (
               <button
                 onClick={() => {
                   navigate("/seller");
@@ -299,7 +318,7 @@ export default function Navbar() {
             )}
 
             {/* My Orders link - hide if already on /orders */}
-            {currentPath !== "/orders" && (
+            {!hideNavIcons && currentPath !== "/orders" &&  isAuthenticated &&(
               <Link
                 to="/orders"
                 onClick={() => setMobileMenuOpen(false)}

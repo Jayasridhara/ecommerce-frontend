@@ -22,6 +22,7 @@ const Login = () => {
     try {
       const response = await loginUser(formData);
       dispatch(setUser(response.user));
+      
       localStorage.setItem("token", response.token);
       if (response.user.role !== "buyer") {
         dispatch(setIsSeller(true));
@@ -112,7 +113,7 @@ const Login = () => {
            
             <Link
               to="/forgot-password"
-              className="text-pink-600 hover:text-pink-500 font-medium"
+              className="text-pink-600 hover:text-pink-500 font-medium no-underline"
             >
               Forgot password?
             </Link>
@@ -128,11 +129,11 @@ const Login = () => {
           </motion.button>
         </form>
 
-        <p className="text-center text-gray-600 text-sm mt-6">
+        <p className="text-center text-gray-600 text-sm mt-10 py-3">
           Don’t have an account?{" "}
           <Link
             to="/register"
-            className="text-pink-600 font-semibold hover:text-pink-500"
+            className="text-pink-600 font-semibold hover:text-pink-500 no-underline"
           >
             Create one
           </Link>
@@ -140,9 +141,7 @@ const Login = () => {
       </motion.div>
 
       {/* Footer */}
-      <footer className="text-gray-500 text-sm mt-10">
-        © 2025 ShopVerse — All rights reserved
-      </footer>
+      
     </section>
   );
 };
