@@ -1,7 +1,7 @@
 import protectedInstance from "../instance/protectedInstance";
 
 
-export async function createCheckoutSession(items,userId,orderId,isBuyNow) {
+export async function createCheckoutSession(items,userId,orderId) {
   const token = localStorage.getItem('token');  // <-- retrieve token
   if (!token) {
     throw new Error('User not authenticated: token missing');
@@ -10,7 +10,6 @@ export async function createCheckoutSession(items,userId,orderId,isBuyNow) {
     items,
     userId,
     orderId,
-    isBuyNow,
     successUrl: `${window.location.origin}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
     cancelUrl: `${window.location.origin}/cart`,
     headers: { Authorization: `Bearer ${token}`}

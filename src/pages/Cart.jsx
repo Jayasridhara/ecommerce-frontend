@@ -23,7 +23,7 @@ const navigate = useNavigate();
 const [showAlert, setShowAlert] = useState(false);
 const [showAddressModal, setShowAddressModal] = useState(false);
 const [checkoutLoading, setCheckoutLoading] = useState(false);
-const [isBuyNow, setIsBuyNow] = useState(false);
+
 console.log("items",items)
 // 👇 Watch for when cart becomes empty
 useEffect(() => {
@@ -31,7 +31,7 @@ useEffect(() => {
   setShowAlert(true);
 
 }
-setIsBuyNow(true);
+
 }, [items]);
 
 useEffect(() => {
@@ -46,12 +46,10 @@ useEffect(() => {
 })();
 }, [dispatch]);
 
- console.log("BuyNOw",isBuyNow)
+ 
 const handleCheckout = async () => {
   if (items.length === 0) return;
-
-  setCheckoutLoading(true);
-  try {
+ try {
   setCheckoutLoading(true);
   const userData = await getMe();
   console.log("Fetched user data:", userData);
@@ -94,7 +92,7 @@ const handleCheckout = async () => {
   }      
   }));
  
-  const data = await createCheckoutSession(payloadItems,user?._id,orderId,isBuyNow);
+  const data = await createCheckoutSession(payloadItems,user?._id,orderId);
   console.log("checkout response", data);
 
   if (data.url) {

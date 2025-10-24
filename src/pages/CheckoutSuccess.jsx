@@ -16,15 +16,13 @@ export default function CheckoutSuccess() {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-
+  const [fetched, setFetched] = useState(false);
   useEffect(() => {
     if (user) dispatch(setUser(user));
-
-    dispatch(fetchCart())
-
   }, [user, dispatch]);
 
   useEffect(() => {
+    if (fetched) return;
     if (!sessionId) {     
       setError("No session ID provided");
       setLoading(false);
@@ -37,6 +35,8 @@ export default function CheckoutSuccess() {
           `/payments/session/${encodeURIComponent(sessionId)}`
         );
         setSession(res.data);
+        setFetched(true);
+        return;
       } catch (err) {
         console.error("Failed to fetch session", err);
         setError(
@@ -44,13 +44,14 @@ export default function CheckoutSuccess() {
             err.message ||
             "Failed to fetch session"
         );
+        setFetched(true); 
       } finally {
         setLoading(false);
       }
     };
 
     fetchSession();
-  }, [sessionId]);
+  }, [sessionId,fetched]);
     console.log("session",session)
   // 🌀 Loading UI
   if (loading)

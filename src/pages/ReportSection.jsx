@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getSellerReports, updateOrderStatusBySeller } from "../Services/orderServices";
-
+import { X } from "lucide-react";
 export default function ReportSection({ onClose }) {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,8 +52,11 @@ export default function ReportSection({ onClose }) {
         <h2 className="text-lg font-semibold text-blue-600">
           📊 Order Reports (Succeeded)
         </h2>
-        <button className="text-red-600 hover:underline" onClick={onClose}>
-          Close
+        <button 
+          className="flex items-center bg-red-500 text-7xl text-white hover:underline p-2" 
+          onClick={onClose}
+        >
+          <X size={16} className="mr-1" /> 
         </button>
       </div>
 
@@ -66,7 +69,7 @@ export default function ReportSection({ onClose }) {
       ) : (
         <>
           {/* ✅ Desktop Table View */}
-          <div className="hidden md:block overflow-x-auto">
+          <div className="hidden md:block lg:block sm:block overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="bg-blue-50 border-b">
@@ -152,7 +155,7 @@ export default function ReportSection({ onClose }) {
           </div>
 
           {/* ✅ Mobile Grid View */}
-          <div className="md:hidden grid gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:hidden ">
             {reports.map((order) =>
               order.cartItems.map((item, idx) => (
                 <div

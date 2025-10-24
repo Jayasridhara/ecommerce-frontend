@@ -206,7 +206,7 @@ const checkSellerDetails = async () => {
         </button>
         </div>
       </header>
-
+{ !showReport && (
       <div className="bg-white shadow-sm mx-4 sm:mx-8 mt-6 rounded-xl p-4 flex flex-col sm:flex-row flex-wrap justify-between items-start sm:items-center gap-4">
        <div className="flex items-center gap-2 text-gray-600 font-medium w-full sm:w-auto">
           <SlidersHorizontal size={18} />
@@ -311,7 +311,7 @@ const checkSellerDetails = async () => {
           />
         </div>
       </div>
-
+      )}
       <div className="px-4 sm:px-8 py-8">
         {showReport ? (
           <ReportSection onClose={() => setShowReport(false)} />

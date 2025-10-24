@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AlertModal from "./AlertModal";
 import { addOrUpdateReview} from "../Services/productServices";
-import { apiAddToCart, apiGetCart, apiRemoveFromCart, apiUpdateCartQty } from "../Services/cartServices";
+import { apiAddToCart, apiGetCart, apiUpdateCartQty } from "../Services/cartServices";
 import { setCart } from "../redux/cartSlice";   
 import { getMe } from "../Services/authServices";
 import { createCheckoutSession } from "../Services/paymentService";
@@ -22,6 +22,7 @@ export default function ProductDetails() {
   const loaderData = useLoaderData();
   const { product: initialProduct, reviews: initialReviews } = loaderData;
  const { items } = useSelector((state) => state.cart);
+
   const { items: wishlist } = useSelector((state) => state.wishlist);
   const { isAuthenticated, user, token } = useSelector((state) => state.auth);
  
@@ -64,9 +65,9 @@ console.log("Is in wishlist:", isInWishlist);
       return;
     }
     if (isInWishlist) {
-      dispatch(removeFromWishlist({ userId: user.id, productId: product._id }));
+      dispatch(removeFromWishlist({ userId: user._id, productId: product._id }));
     } else {
-      dispatch(addToWishlist({ userId: user.id, productId: product._id }));
+      dispatch(addToWishlist({ userId: user._id, productId: product._id }));
     }
   };
 
@@ -117,6 +118,8 @@ console.log("Is in wishlist:", isInWishlist);
       console.error(err);
     }
   };
+
+
   useEffect(() => {
     (async () => {
     try {
@@ -132,8 +135,47 @@ console.log("Is in wishlist:", isInWishlist);
   }, [dispatch]);
 
   console.log("Quantity",quantity)
-  
- 
+  // handle Buy Now
+  const handleBuyNow = async () => {
+    if (!isAuthenticated) {
+      setModalMessage("Please log in to buy this product 🛒");
+      setShowModal(true);
+      return;
+    }
+
+    try {
+      // ✅ fetch user data
+      const userData = await getMe();
+      const addr = userData.shippingAddress || {};
+
+      const requiredFields = [
+        "fullName",
+        "addressLine1",
+        "city",
+        "state",
+        "postalCode",
+        "country",
+        "phone",
+      ];
+      const missing = requiredFields.filter((f) => !addr[f] || addr[f].trim() === "");
+
+      if (missing.length > 0) {
+        // Show modal to update shipping address
+        setUserAddress(addr);
+        setShowShippingModal(true);
+        return;
+      }
+
+      // Proceed to checkout if address exists
+      await proceedToCheckout(addr);
+    } catch (err) {
+      console.error("Buy Now failed:", err);
+       toast.error(err.response?.data?.message || "Buy Now failed");
+      setModalMessage("Buy Now failed. Please try again ❌".err);
+      setShowModal(true);
+    }
+  };
+
   // ✅ function to proceed to checkout
   const proceedToCheckout = async (addr) => {
     setModalMessage("Preparing checkout...");
@@ -173,7 +215,7 @@ console.log("Is in wishlist:", isInWishlist);
 
     throw new Error("Invalid checkout response from server");
   };
-
+console.log(items);
   const handleUpdateQty = async (productId, newQty) => {
     try {
         const isalreadyincart=items.some((item)=>item.id==productId)
@@ -199,7 +241,7 @@ console.log("Is in wishlist:", isInWishlist);
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-white text-gray-800 font-sans">
       <Navbar />
-      <div className="max-w-5xl mx-auto px-6 py-8 grid md:grid-cols-2 gap-10  items-center">
+      <div className="max-w-5xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
         {/* Product Image */}
         <div className="relative">
           <img
@@ -351,21 +393,9 @@ console.log("Is in wishlist:", isInWishlist);
                   return;
                 }
                 try {
-                  const isalreadyincart=items.some((item)=>item.id==product._id)
-                  if(!isalreadyincart){
-                      const res = await apiAddToCart(product._id, quantity);
-                      dispatch(setCart(res.cart.cartItems));
-                      dispatch(fetchCart());
-                    }
-                    else
-                    {
-
-                      const resq = await apiRemoveFromCart(product._id);
-                      dispatch(setCart(resq.cart.cartItems));
-                      const res = await apiAddToCart(product._id, quantity);
-                      dispatch(setCart(res.cart.cartItems));
-                      dispatch(fetchCart());
-                    }
+                  const res = await apiAddToCart(product._id, quantity);
+                  dispatch(setCart(res.cart.cartItems));
+                  dispatch(fetchCart());
                   navigate("/cart");
                 } catch (err) {
                   console.error("add to cart error", err);

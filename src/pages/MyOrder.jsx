@@ -175,7 +175,7 @@ export default function MyOrders() {
 /** ✅ Modern horizontal timeline design */
 function StatusProgress({ status, paymentDate, shippedDate, deliveredDate, expectedDate }) {
   const steps = [
-    { key: "succeeded", label: "Payment Completed", icon: <FiCheckCircle /> },
+    { key: "paid", label: "Payment Completed", icon: <FiCheckCircle /> },
     { key: "shipped", label: "Item Shipped", icon: <FiTruck /> },
     { key: "delivered", label: "Delivered", icon: <FiClock /> },
   ];
@@ -189,7 +189,7 @@ function StatusProgress({ status, paymentDate, shippedDate, deliveredDate, expec
 
   const getDateLabel = (key) => {
     switch (key) {
-      case "succeeded":
+      case "paid":
         return paymentDate ? format(new Date(paymentDate), "dd MMM yyyy") : "Pending";
       case "shipped":
         return shippedDate

@@ -58,8 +58,8 @@ export default function Wishlist() {
                   className="w-full h-40 object-cover rounded-lg mb-3 cursor-pointer"
                   onClick={() => navigate(`/product/${p._id}`)}
                 />
-                <h4 className="font-semibold text-purple-100 mb-1">{p.name}</h4>
-                <p className="text-gray-300">${p.price || 'N/A'}</p>
+                <h4 className="font-semibold text-purple-600 mb-1">{p.name}</h4>
+                <p className="text-gray-700">${p.price || 'N/A'}</p>
                 <div className="flex justify-center gap-3 mt-3">
                   <button
                      onClick={async (e) => {
