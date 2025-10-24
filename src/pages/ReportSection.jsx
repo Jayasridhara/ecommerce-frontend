@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getSellerReports, updateOrderStatusBySeller } from "../Services/orderServices";
 import { X } from "lucide-react";
+import { toast } from "react-toastify";
 export default function ReportSection({ onClose }) {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,6 +32,7 @@ export default function ReportSection({ onClose }) {
     try {
       setLoading(true);
       await updateOrderStatusBySeller(orderId, newStatus);
+     
       loadReports();
     } catch (err) {
       console.error("Failed to update order status:", err);

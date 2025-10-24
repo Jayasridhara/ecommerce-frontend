@@ -23,17 +23,17 @@ const navigate = useNavigate();
 const [showAlert, setShowAlert] = useState(false);
 const [showAddressModal, setShowAddressModal] = useState(false);
 const [checkoutLoading, setCheckoutLoading] = useState(false);
-
+const [message,setMessage]=useState("");
 console.log("items",items)
 // 👇 Watch for when cart becomes empty
 useEffect(() => {
   if (items.length === 0) {
+    setMessage("Your cart is Empty")
   setShowAlert(true);
 
 }
 
 }, [items]);
-
 useEffect(() => {
   (async () => {
   try {
@@ -119,14 +119,17 @@ const handleCheckout = async () => {
 const handleClearCart = async () => {
 try {
 const res = await apiClearCart();
-dispatch(setCart(res.cart));
+dispatch(setCart(res.cart.cartItems));
+ setMessage("Clear the cart");
 setShowAlert(true);
 } catch (err) {
 console.error("Clear cart failed", err);
+ setMessage("⚠️ Failed to clear cart, but local cart was reset.");
 dispatch(clearCart());
 }
 };
 
+console.log(message);
 const handleCloseAlert = () => {
 setShowAlert(false);
 navigate("/");
@@ -281,7 +284,8 @@ return (
     onClose={() => setShowAddressModal(false)}
     onSave={handleCheckout}
     />
-    <AlertModal show={showAlert} onClose={handleCloseAlert} />
+    <AlertModal show={showAlert} onClose={handleCloseAlert} >{message}</AlertModal>
+        
     </div>
 </>
 );

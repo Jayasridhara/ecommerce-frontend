@@ -242,11 +242,12 @@ export default function Home() {
                         const resp = await apiAddToCart(product._id ?? product.id, 1);
                         dispatch(setCart(resp.cart.cartItems));
                         dispatch(fetchCart());
+                        toast.success("Add to cart sucessfully");
                       } catch (err) {
                         console.error("Add to cart failed", err);
                       }
                     }}
-                    className="mt-auto bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-full font-semibold transition"
+                    className="mt-auto bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-full font-semibold transition cursor-pointer"
                   >
                     Add to Cart
                   </button>

@@ -65,8 +65,10 @@ console.log("Is in wishlist:", isInWishlist);
     }
     if (isInWishlist) {
       dispatch(removeFromWishlist({ userId: user.id, productId: product._id }));
+       toast.warn("Remove from wishlist")
     } else {
       dispatch(addToWishlist({ userId: user.id, productId: product._id }));
+       toast.success("Add to wishlist sucessfully")
     }
   };
 
@@ -180,13 +182,14 @@ console.log("Is in wishlist:", isInWishlist);
         if(!isalreadyincart){
            const res = await apiAddToCart(productId, newQty);
          dispatch(setCart(res.cart.cartItems));
-       
+          toast.success("Add to cart successfully")
         }
         else
         {
         
           const res = await apiUpdateCartQty(productId, newQty);
           dispatch(setCart(res.cart.cartItems));
+          toast.success("This product already exist in the cart Quantity increased")
         }
 
       setQuantity(newQty);
@@ -292,9 +295,6 @@ console.log("Is in wishlist:", isInWishlist);
                 
                 if (quantity < product.stock) {
                   const newQty = quantity + 1;
-                  
-                 
-
                   handleUpdateQty(product._id, newQty);
                   
                 } else {
@@ -330,9 +330,12 @@ console.log("Is in wishlist:", isInWishlist);
                   return;
                 }
                 try {
-                  const res = await apiAddToCart(product._id, 1);
-                  dispatch(setCart(res.cart.cartItems));
-                  dispatch(fetchCart());
+                     
+                       const res = await apiAddToCart(product._id, 1);
+                        dispatch(setCart(res.cart.cartItems));
+                        dispatch(fetchCart());
+                        toast.success("This product already exist in the cart Quantity increased")
+                
                 } catch (err) {
                   console.error("add to cart error", err);
                 }

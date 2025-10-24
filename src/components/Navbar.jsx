@@ -213,7 +213,7 @@ const [warningShown, setWarningShown] = useState(false);
           {!hideNavIcons && !isSellerPage  && (
             <Link
               to="/wishlist"
-              className={`relative hover:scale-105 transition-transform
+              className={`relative hover:scale-105 transition-transform cursor-pointer
                 ${wishlistCount === 0 || location.pathname.startsWith("/wishlist") ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}
               `}
             >

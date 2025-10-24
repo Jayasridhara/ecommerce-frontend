@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import AlertModal from "./AlertModal";
 import { apiAddToCart } from "../Services/cartServices";
+import { toast } from "react-toastify";
 
 export default function Wishlist() {
   const items = useSelector((state) => state.wishlist.items || []);
@@ -69,6 +70,7 @@ export default function Wishlist() {
                           const resp = await apiAddToCart(p._id ?? p.id, 1);
                           dispatch(setCart(resp.cart.cartItems));
                           dispatch(fetchCart()); 
+                          toast.success("Favorite product added to cart")
                         } catch (err) {
                           console.error('add to cart failed', err);
                         }
@@ -78,7 +80,10 @@ export default function Wishlist() {
                     <ShoppingCart className="w-4 h-4" /> Add
                   </button>
                   <button
-                    onClick={() => dispatch(removeFromWishlist({ userId: user.id, productId: p._id }))}
+                    onClick={() => {
+                      toast.success("Remove from wishlist");
+                      dispatch(removeFromWishlist({ userId: user.id, productId: p._id }))
+                    }}
                     className="bg-red-500 hover:bg-red-400 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-1"
                   >
                     <Trash2 className="w-4 h-4" /> Remove
