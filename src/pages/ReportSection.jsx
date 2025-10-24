@@ -28,18 +28,37 @@ export default function ReportSection({ onClose }) {
     }
   };
 
-  const handleStatusUpdate = async (orderId, newStatus) => {
-    try {
-      setLoading(true);
-      await updateOrderStatusBySeller(orderId, newStatus);
-     
-      loadReports();
-    } catch (err) {
-      console.error("Failed to update order status:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleStatusUpdate = async (orderId, newStatus) => {
+  try {
+    setLoading(true);
+    await updateOrderStatusBySeller(orderId, newStatus);
+    
+    toast.success(`Order status updated to "${newStatus}" successfully!`, {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
+
+    loadReports();
+  } catch (err) {
+    console.error("Failed to update order status:", err);
+    toast.error("Failed to update order status. Please try again.", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const toggleAddress = (orderId) => {
     setExpandedOrders((prev) => ({

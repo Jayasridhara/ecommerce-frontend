@@ -4,7 +4,7 @@ import axios from "axios";
 
 const baseURL = "https://ecommerce-backend-1-ldht.onrender.com/api/v1";
 
-//create new clear
+//render deploy url
 const instance = axios.create({
     baseURL,
     timeout: 10000,
