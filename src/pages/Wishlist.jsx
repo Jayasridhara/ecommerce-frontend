@@ -76,7 +76,7 @@ export default function Wishlist() {
                           console.error('add to cart failed', err);
                         }
                       }}
-                    className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-1"
+                    className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-1 cursor-pointer"
                   >
                     <ShoppingCart className="w-4 h-4" /> Add
                   </button>
@@ -85,7 +85,7 @@ export default function Wishlist() {
                       toast.success("Remove from wishlist");
                       dispatch(removeFromWishlist({ userId: userId, productId: p._id }))
                     }}
-                    className="bg-red-500 hover:bg-red-400 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-1"
+                    className="bg-red-500 hover:bg-red-400 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-1 cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" /> Remove
                   </button>
