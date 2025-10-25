@@ -217,7 +217,7 @@ export default function ProductDetails() {
           />
           <button
             onClick={handleWishlist}
-            className="absolute top-4 right-4 bg-black/50 p-2 rounded-full hover:bg-black/70 transition"
+            className="absolute top-4 right-4 bg-black/50 p-2 rounded-full hover:bg-black/70 transition cursor-pointer"
           >
             <Heart
               className={`w-6 h-6 ${
