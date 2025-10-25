@@ -137,7 +137,7 @@ export default function CheckoutSuccess() {
               </p>
             )}
             <p className="text-lg font-semibold mb-6">
-              Total Paid: ₹{(amountTotal / 100).toFixed(2)}
+              Total Paid: ${(amountTotal / 100).toFixed(2)}
             </p>
           </div>
 
@@ -159,7 +159,7 @@ export default function CheckoutSuccess() {
                   </div>
                 </div>
                 <div className="font-semibold">
-                  ₹
+                  $
                   {(
                     (li.amount_total ??
                       li.price?.unit_amount * li.quantity) / 100

@@ -49,7 +49,7 @@ export default function MyOrders() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 py-10">
-        <h2 className="text-3xl font-bold mb-8">My Orders</h2>
+        <h2 className="text-3xl font-bold mb-8 text-center">My Orders</h2>
 
         {orders.map((order) => (
           <motion.div
@@ -80,7 +80,7 @@ export default function MyOrders() {
                   {order.status}
                 </div>
                 <div className="text-sm text-gray-600 mt-2 font-semibold">
-                  Total ₹{Number(order.totalAmount).toFixed(2)}
+                  Total ${Number(order.totalAmount).toFixed(2)}
                 </div>
               </div>
             </div>
@@ -111,10 +111,10 @@ export default function MyOrders() {
                             <div className="text-right">
                               <div className="text-sm text-gray-600">Qty: {item.qty}</div>
                               <div className="text-md font-medium">
-                                ₹{Number(item.price).toFixed(2)}
+                                ${Number(item.price).toFixed(2)}
                               </div>
                               <div className="text-sm text-gray-400">
-                                Sub: ₹
+                                Sub: $
                                 {Number(item.subtotal ?? item.price * item.qty).toFixed(2)}
                               </div>
                             </div>

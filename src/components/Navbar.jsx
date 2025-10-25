@@ -77,6 +77,7 @@ const [warningShown, setWarningShown] = useState(false);
     if (isAuthenticated) {
       const fetchOrders = async () => {
         try {
+          
           const data = await getMyOrders(); // Ensure getMyOrders is defined and available
           setOrders(data);
         } catch (err) {
@@ -125,7 +126,7 @@ const [warningShown, setWarningShown] = useState(false);
           </Link>
 
           {/* Mobile Icons: Heart & Cart */}
-          <div className="flex items-center gap-3 md:hidden">
+          <div className="flex items-center gap-6 md:hidden">
            
              <Link
               to={wishlistCount > 0 ? "/wishlist" : "#"}
