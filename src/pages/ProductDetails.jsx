@@ -21,15 +21,11 @@ export default function ProductDetails() {
 
   const loaderData = useLoaderData();
   const { product: initialProduct, reviews: initialReviews } = loaderData;
- const { items } = useSelector((state) => state.cart);
+  const { items } = useSelector((state) => state.cart);
   const { items: wishlist } = useSelector((state) => state.wishlist);
   const { isAuthenticated, user, token } = useSelector((state) => state.auth);
- 
-  
-  
-  
 
-const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(1);
 
   const [product, setProduct] = useState(initialProduct);
   const [reviews, setReviews] = useState(initialReviews);
@@ -41,6 +37,10 @@ const [quantity, setQuantity] = useState(1);
   const [showShippingModal, setShowShippingModal] = useState(false);
   const [userAddress, setUserAddress] = useState(null);
   
+   useEffect(() => {
+    // Scroll to top when the page loads
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   const reviewTextareaRef = useRef(null);
   // normalize wishlist (flat array of product objects or id strings)
   const sanitizedWishlist = Array.isArray(wishlist)
@@ -53,9 +53,9 @@ const [quantity, setQuantity] = useState(1);
         return String(p) === String(product._id);
       })
     : false;
-console.log("Current product:", product);
-console.log(wishlist,wishlist)
-console.log("Is in wishlist:", isInWishlist);
+      console.log("Current product:", product);
+      console.log(wishlist,wishlist)
+      console.log("Is in wishlist:", isInWishlist);
 
   const handleWishlist = () => {
     if (!isAuthenticated) {

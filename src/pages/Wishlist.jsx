@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 export default function Wishlist() {
   const items = useSelector((state) => state.wishlist.items || []);
   const { isAuthenticated, user, token } = useSelector((state) => state.auth);
+  const userId=user.id||user._id;
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -82,7 +83,7 @@ export default function Wishlist() {
                   <button
                     onClick={() => {
                       toast.success("Remove from wishlist");
-                      dispatch(removeFromWishlist({ userId: user.id, productId: p._id }))
+                      dispatch(removeFromWishlist({ userId: userId, productId: p._id }))
                     }}
                     className="bg-red-500 hover:bg-red-400 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-1"
                   >

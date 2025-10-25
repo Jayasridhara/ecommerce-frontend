@@ -211,7 +211,7 @@ const [warningShown, setWarningShown] = useState(false);
           )}
 
           {/* Wishlist Icon */}
-          {!hideNavIcons && !isSellerPage  && (
+          { !isSellerPage  && (
             <Link
               to="/wishlist"
               className={`relative hover:scale-105 transition-transform cursor-pointer

@@ -29,10 +29,13 @@ export default function Home() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
 
-  // Ensure the user state in Redux is up-to-date
-  if (user) {
-    dispatch(setUser(user));
-  }
+  useEffect(() => {
+      // Ensure the user state in Redux is up-to-date
+      if (user) {
+        dispatch(setUser(user));
+      }
+    },[user]);
+      
 
   // Load available filter options based on initial products
   useEffect(() => {
