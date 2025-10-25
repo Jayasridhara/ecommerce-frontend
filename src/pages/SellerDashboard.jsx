@@ -14,8 +14,12 @@ import ReportSection from "./ReportSection";
 import { getMe } from "../Services/authServices";
 import { toast } from "react-toastify";
 import ShopDetailsModal from "../components/ShopDetailsModal";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 export default function SellerDashboard() {
   const [products, setProducts] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+
   const [filters, setFilters] = useState({
     type: "",
     color: "",
@@ -126,12 +130,26 @@ const handleFilterChange = async (e) => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure to delete this product?")) {
-      await deleteProducts(id);
+const handleDeleteRequest = (productId) => {
+  setProductToDelete(productId);
+  setShowDeleteModal(true);
+};
+
+const confirmDelete = async () => {
+  try {
+    if (productToDelete) {
+      await deleteProducts(productToDelete);
       await loadProducts();
+      toast.success("Product deleted successfully!");
     }
-  };
+  } catch (err) {
+    toast.error("Failed to delete product");
+  } finally {
+    setShowDeleteModal(false);
+    setProductToDelete(null);
+  }
+};
+
 
   const resetForm = () => {
     setIsModalOpen(false);
@@ -189,18 +207,18 @@ const checkSellerDetails = async () => {
         <h1 className="text-xl font-bold text-blue-600 tracking-tight mb-2 sm:mb-0">
           🛍️ Seller Dashboard
         </h1>
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto ">
           <button
             type="button"
             onClick={() => setShowReport((prev) => !prev)}
-            className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 shadow transition"
+            className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 shadow transition cursor-pointer"
           >
             📊 Reports
           </button>
           <button
           type="button"
           onClick={checkSellerDetails}
-          className="flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow transition"
+          className="flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow transition cursor-pointer" 
         >
           <PlusCircle className="mr-2" size={18} /> Add Product
         </button>
@@ -236,7 +254,7 @@ const checkSellerDetails = async () => {
               await loadProducts();
             }
           }}
-          className={`ml-2 px-4 py-2 rounded-lg shadow transition ${
+          className={`ml-2 px-4 py-2 rounded-lg shadow transition cursor-pointer ${
             showOutOfStock
               ? "bg-red-600 text-white hover:bg-red-700"
               : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -246,7 +264,7 @@ const checkSellerDetails = async () => {
         </button>
 
           <button
-            className="ml-auto sm:ml-0 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow transition"
+            className="ml-auto sm:ml-0 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow transition cursor-pointer"
             onClick={() => {
               setFilters({
                 type: "",
@@ -327,7 +345,7 @@ const checkSellerDetails = async () => {
                     <img
                       src={
                         prod.image ||
-                        "https://via.placeholder.com/300x200?text=No+Image"
+                        ""
                       }
                       alt={prod.name}
                       className="w-full h-full object-cover"
@@ -353,12 +371,12 @@ const checkSellerDetails = async () => {
                       >
                         <Edit3 size={16} className="text-blue-600" />
                       </button>
-                      <button
-                        onClick={() => handleDelete(prod._id)}
-                        className="p-1.5 bg-white/90 rounded-full hover:bg-red-100 transition"
-                      >
-                        <Trash2 size={16} className="text-red-600" />
-                      </button>
+                     <button
+                      onClick={() => handleDeleteRequest(prod._id)}
+                      className="p-1.5 bg-white/90 rounded-full hover:bg-red-100 transition"
+                    >
+                      <Trash2 size={16} className="text-red-600" />
+                    </button>
                     </div>
                   </div>
                   <div className="p-3 sm:p-4">
@@ -424,6 +442,11 @@ const checkSellerDetails = async () => {
          setIsModalOpen(true); // open product modal after saving
        }}
      />
+     <ConfirmDeleteModal
+        show={showDeleteModal}
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

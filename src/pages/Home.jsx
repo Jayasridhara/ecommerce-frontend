@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { apiAddToCart } from "../Services/cartServices";
+import { apiAddToCart, apiUpdateCartQty } from "../Services/cartServices";
 import { fetchCart, setCart } from "../redux/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/Navbar";
@@ -11,6 +11,7 @@ import { apiGetFilteredProducts } from "../Services/productServices";
 
 export default function Home() {
   const products = useLoaderData() || [];
+  const cartItems = useSelector((state) => state.cart.items);
   const [filters, setFilters] = useState({
     type: "",
     color: "",
@@ -140,7 +141,7 @@ export default function Home() {
             name="type"
             value={filters.type}
             onChange={handleFilterChange}
-            className="px-4 py-2 rounded-full border border-gray-300 bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-400"
+            className="px-4 py-2 rounded-full border border-gray-300 bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-400 cursor-pointer"
           >
             <option value="">All Types</option>
             {availableFilters.types.map((t, i) => (
@@ -154,7 +155,7 @@ export default function Home() {
             name="color"
             value={filters.color}
             onChange={handleFilterChange}
-            className="px-4 py-2 rounded-full border border-gray-300 bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-400"
+            className="px-4 py-2 rounded-full border border-gray-300 bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-400 cursor-pointer"
           >
             <option value="">All Colors</option>
             {availableFilters.colors.map((c, i) => (
@@ -186,7 +187,7 @@ export default function Home() {
 
           <button
             onClick={clearFilters}
-            className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition font-medium"
+            className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition font-medium cursor-pointer"
           >
             Clear Filters
           </button>
@@ -227,30 +228,55 @@ export default function Home() {
                       title={product.color}
                     ></div>
                   </div>
-                  <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      if (product.stock <= 0) {
-                        toast.error("This product is out of stock 🚫");
-                        return;
-                      }
-                      if (!isAuthenticated) {
-                        navigate("/login");
-                        return;
-                      }
-                      try {
+                 <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+
+                    if (product.stock <= 0) {
+                      toast.error("This product is out of stock 🚫");
+                      return;
+                    }
+
+                    if (!isAuthenticated) {
+                      navigate("/login");
+                      return;
+                    }
+
+                    try {
+                      // ✅ Check if item already exists in cart
+                      const existingItem = cartItems.find(
+                        (item) => (item._id ?? item.id) === (product._id ?? product.id)
+                      );
+
+                      if (existingItem) {
+                        // ✅ If it exists, increase its quantity by 1
+                        const newQty = existingItem.qty + 1;
+                        if (newQty > product.stock) {
+                          toast.error("Cannot add more. Stock limit reached! 📦");
+                          return;
+                        }
+
+                        const resp = await apiUpdateCartQty(product._id ?? product.id, newQty);
+                        dispatch(setCart(resp.cart.cartItems));
+                        toast.info("Quantity increased for this item 🛒");
+                      } else {
+                        // ✅ If it doesn't exist, add to cart
                         const resp = await apiAddToCart(product._id ?? product.id, 1);
                         dispatch(setCart(resp.cart.cartItems));
-                        dispatch(fetchCart());
-                        toast.success("Add to cart sucessfully");
-                      } catch (err) {
-                        console.error("Add to cart failed", err);
+                        toast.success("Added to cart successfully ✅");
                       }
-                    }}
-                    className="mt-auto bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-full font-semibold transition cursor-pointer"
-                  >
-                    Add to Cart
-                  </button>
+
+                      dispatch(fetchCart());
+                    } catch (err) {
+                      console.error("Add to cart failed", err);
+                      toast.error("Failed to add item to cart ❌");
+                    }
+                  }}
+                  className="mt-auto bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-full font-semibold transition cursor-pointer"
+                >
+                  Add to Cart
+                </button>
+
                 </div>
               </motion.div>
             ))

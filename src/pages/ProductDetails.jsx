@@ -281,7 +281,7 @@ console.log("Is in wishlist:", isInWishlist);
                   handleUpdateQty(product._id, newQty);
                 }
               }}
-              className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-lg font-bold"
+              className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-lg font-bold cursor-pointer"
             >
               −
             </button>
@@ -301,7 +301,7 @@ console.log("Is in wishlist:", isInWishlist);
                   toast.error("You have reached the maximum stock available 📦");
                 }
               }}
-              className="px-3 py-1 text-lg font-bold bg-gray-100 hover:bg-gray-200"
+              className="px-3 py-1 text-lg font-bold bg-gray-100 hover:bg-gray-200 cursor-pointer"
             >
               +
             </button>
@@ -315,7 +315,7 @@ console.log("Is in wishlist:", isInWishlist);
               setModalMessage("This product is currently out of stock 🚫");
               setShowModal(true);
             }}
-            className="bg-gray-400 text-white px-5 py-2 rounded-lg font-semibold cursor-not-allowed"
+            className="bg-gray-400 text-white px-5 py-2 rounded-lg font-semibold cursor-not-allowed "
           >
             Out of Stock
           </button>
@@ -330,17 +330,25 @@ console.log("Is in wishlist:", isInWishlist);
                   return;
                 }
                 try {
-                     
+                     const isalreadyincart=items.some((item)=>item.id==product._id)
+                      if(isalreadyincart)
+                      {
+                          toast.success("Product already exist quantity increased")
+                      }
+                      else
+                      {
+                        toast.success("Product added to cart")
+                      }
                        const res = await apiAddToCart(product._id, 1);
                         dispatch(setCart(res.cart.cartItems));
                         dispatch(fetchCart());
-                        toast.success("This product already exist in the cart Quantity increased")
+                        
                 
                 } catch (err) {
                   console.error("add to cart error", err);
                 }
               }}
-              className="bg-gradient-to-r from-pink-500 to-purple-600 px-5 py-2 rounded-lg font-semibold hover:opacity-90"
+              className="bg-gradient-to-r from-pink-500 to-purple-600 px-5 py-2 rounded-lg font-semibold hover:opacity-90 cursor-pointer"
             >
               Add to Cart
             </button>
@@ -374,7 +382,7 @@ console.log("Is in wishlist:", isInWishlist);
                   console.error("add to cart error", err);
                 }
               }}
-              className="bg-gradient-to-r from-purple-600 to-pink-500 px-5 py-2 rounded-lg font-semibold hover:opacity-90"
+              className="bg-gradient-to-r from-purple-600 to-pink-500 px-5 py-2 rounded-lg font-semibold hover:opacity-90 cursor-pointer"
             >
               Buy Now
             </button>
@@ -415,7 +423,7 @@ console.log("Is in wishlist:", isInWishlist);
           />
           <button
             onClick={handleReviewSubmit}
-            className="mt-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90"
+            className="mt-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 cursor-pointer"
           >
             Submit Review
           </button>

@@ -172,13 +172,13 @@ export default function CheckoutSuccess() {
           <div className="mt-6 flex justify-center gap-4">
             <button
               onClick={() => navigate("/orders")}
-              className="px-5 py-2.5 bg-green-600 text-white rounded-full font-medium shadow hover:bg-green-700 transition"
+              className="px-5 py-2.5 bg-green-600 text-white rounded-full font-medium shadow hover:bg-green-700 transition cursor-pointer"
             >
               View My Orders
             </button>
             <button
               onClick={() => navigate("/")}
-              className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-full font-medium hover:bg-gray-300 transition"
+              className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-full font-medium hover:bg-gray-300 transition cursor-pointer"
             >
               Continue Shopping
             </button>

@@ -13,6 +13,7 @@ import { apiClearCart, apiGetCart, apiRemoveFromCart, apiUpdateCartQty } from ".
 import protectedInstance from "../instance/protectedInstance";
 import { getMe } from "../Services/authServices";
 import ShippingAddressModal from "../components/ShippingAddressModal";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 
 export default function Cart() {
 const { items } = useSelector((state) => state.cart);
@@ -23,6 +24,8 @@ const navigate = useNavigate();
 const [showAlert, setShowAlert] = useState(false);
 const [showAddressModal, setShowAddressModal] = useState(false);
 const [checkoutLoading, setCheckoutLoading] = useState(false);
+const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [productToDelete, setProductToDelete] = useState(null);
 const [message,setMessage]=useState("");
 console.log("items",items)
 // 👇 Watch for when cart becomes empty
@@ -145,6 +148,28 @@ console.error("Update qty failed", err);
 }
 };
 
+const handleRemoveRequest = (productId) => {
+  setProductToDelete(productId);
+  setShowDeleteModal(true);
+};
+
+const confirmRemove = async () => {
+  try {
+    if (productToDelete) {
+      const res = await apiRemoveFromCart(productToDelete);
+      dispatch(setCart(res.cart.cartItems));
+      toast.success("Item removed from cart.");
+    }
+  } catch (err) {
+    console.error("Remove from cart failed", err);
+    toast.error("Failed to remove item.");
+  } finally {
+    setShowDeleteModal(false);
+    setProductToDelete(null);
+  }
+};
+
+
 const handleRemove = async (productId) => {
 try {
 const res = await apiRemoveFromCart(productId);
@@ -208,9 +233,9 @@ return (
               await handleUpdateQty(pid, next);
             }
           }}
-          className="bg-gray-100 hover:bg-gray-200 p-2 rounded-full"
+          className="bg-gray-100 hover:bg-gray-200 p-2 rounded-full cursor-pointer"
         >
-          <Minus className="w-4 h-4 text-gray-700" />
+          <Minus className="w-4 h-4 text-gray-700 " />
         </button>
         <span className="px-3 text-lg font-semibold">{item.qty}</span>
         <button
@@ -224,9 +249,9 @@ return (
             }
             await handleUpdateQty(pid, next);
           }}
-            className={`bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-700"`}
+            className={`bg-gray-100 p-2 rounded-full hover:bg-gray-200 text-gray-700 cursor-pointer"`}
         >
-          <Plus className="w-4 h-4 text-gray-700" />
+          <Plus className="w-4 h-4 text-gray-700 cursor-pointer" />
         </button>
       </div>
     </div>
@@ -241,11 +266,12 @@ return (
       ${item.price.toFixed(2)}
     </p>
     <button
-      onClick={async () => {
+      onClick={(e) => {
+        e.stopPropagation();
         const pid = item.id ?? item._id;
-        await handleRemove(pid);
+        handleRemoveRequest(pid);
       }}
-      className="bg-pink-500 hover:bg-pink-400 p-2 rounded-full"
+      className="bg-pink-500 hover:bg-pink-400 p-2 rounded-full cursor-pointer"
     >
       <Trash2 className="w-4 h-4 text-white" />
     </button>
@@ -262,7 +288,7 @@ return (
     <div className="mt-6 flex flex-col sm:flex-row justify-between gap-2">
     <button
     onClick={handleClearCart}
-    className="bg-purple-500 hover:bg-purple-400 px-6 py-2 rounded-lg"
+    className="bg-purple-500 hover:bg-purple-400 px-6 py-2 rounded-lg cursor-pointer"
     >
     Clear Cart
     </button>
@@ -270,7 +296,7 @@ return (
     <button
     onClick={handleCheckout}
     disabled={checkoutLoading}
-    className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+    className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 cursor-pointer"
     >
     {checkoutLoading ? "Processing..." : "Proceed to Checkout"}
     </button>
@@ -285,7 +311,12 @@ return (
     onSave={handleCheckout}
     />
     <AlertModal show={showAlert} onClose={handleCloseAlert} >{message}</AlertModal>
-        
+    <ConfirmDeleteModal
+    show={showDeleteModal}
+    onCancel={() => setShowDeleteModal(false)}
+    onConfirm={confirmRemove}
+    message="Are you sure you want to remove this item from your cart?"
+  /> 
     </div>
 </>
 );

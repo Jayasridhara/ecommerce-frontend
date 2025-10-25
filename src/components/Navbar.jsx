@@ -185,7 +185,7 @@ const [warningShown, setWarningShown] = useState(false);
           {isAuthenticated && user?.role === "seller" && isSeller && !isSellerPage && (
             <button
               onClick={() => navigate("/seller")}
-              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-1.5 rounded-full font-semibold hover:bg-blue-600 transition-all"
+              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-1.5 rounded-full font-semibold hover:bg-blue-600 transition-all cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
               New Product
@@ -196,14 +196,14 @@ const [warningShown, setWarningShown] = useState(false);
             orders.length > 0 ? (
               <Link
                 to="/orders"
-                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:opacity-90 transition-all text-decroration-none no-underline"
+                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:opacity-90 transition-all text-decroration-none no-underline rounded-full"
               >
                 My Orders
               </Link>
             ) : (
               <button
                 disabled
-                className="px-4 py-2 rounded-full bg-gray-200 text-gray-500 font-medium cursor-not-allowed no-underline"
+                className="px-4 py-2  bg-gray-200 text-gray-500 font-medium cursor-not-allowed no-underline rounded-full"
               >
                 My Orders
               </button>
@@ -277,7 +277,7 @@ const [warningShown, setWarningShown] = useState(false);
                  
                 </span>
                 <svg
-                  className="w-4 h-4 text-gray-700"
+                  className="w-4 h-4 text-gray-700 cursor-pointer"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
@@ -291,7 +291,7 @@ const [warningShown, setWarningShown] = useState(false);
                 <div className="absolute right-0 mt-3 w-52 bg-white border border-gray-200 rounded-2xl shadow-xl py-2 z-50 text-center">
                   <div className="px-4 py-2 text-gray-700 font-semibold border-b border-gray-100 ">
                       <p className="font-semibold">{user?.name}</p>
-              <        p className="text-sm text-gray-500">{user?.role}</p>
+                      <p className="text-sm text-gray-500">{user?.role}</p>
                   </div>
                   <Link
                     to="/profile"
@@ -302,7 +302,7 @@ const [warningShown, setWarningShown] = useState(false);
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="block w-full  px-4 py-2 text-red-500 hover:bg-red-50 transition text-center"
+                    className="block w-full  px-4 py-2 text-red-500 hover:bg-red-50 transition text-center cursor-pointer"
                   >
                     Logout
                   </button>
@@ -358,7 +358,7 @@ const [warningShown, setWarningShown] = useState(false);
                   navigate("/seller");
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 font-semibold"
+                className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 font-semibold cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4" /> New Product
               </button>
@@ -372,7 +372,7 @@ const [warningShown, setWarningShown] = useState(false);
                 className={`px-4 py-2 rounded-lg text-center no-underline ${
                   orders.length > 0
                     ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white"
-                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "bg-gray-200 text-gray-500 cursor-not- rounded-full"
                 }`}
               >
                 My Orders
@@ -384,7 +384,7 @@ const [warningShown, setWarningShown] = useState(false);
                 handleLogout();
                 setMobileMenuOpen(false);
               }}
-              className="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200"
+              className="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 cursor-pointer"
             >
               Logout
             </button>
