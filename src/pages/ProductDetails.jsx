@@ -178,6 +178,11 @@ export default function ProductDetails() {
 
   const handleUpdateQty = async (productId, newQty) => {
     try {
+        if (!isAuthenticated) {
+        setModalMessage("Please log in to rate ⭐");
+        setShowModal(true);
+        return;
+      }
         const isalreadyincart=items.some((item)=>item.id==productId)
         if(!isalreadyincart){
            const res = await apiAddToCart(productId, newQty);
