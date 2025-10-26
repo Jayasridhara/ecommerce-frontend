@@ -52,13 +52,13 @@ Backend:
 
 Deploy Node.js + Express API → Render
 
-Example: https://ecommerce-backend.onrender.com
+Example: [https://ecommerce-backend.onrender.com](https://ecommerce-backend-1-ldht.onrender.com/api/v1
 
 Connect frontend → backend
 
 Update .env in React:
 
-REACT_APP_API_URL=https://ecommerce-backend.onrender.com/api/v1
+Backend URL render=https://ecommerce-backend-1-ldht.onrender.com/api/v1
 
 
 Ensure CORS is enabled in backend:
